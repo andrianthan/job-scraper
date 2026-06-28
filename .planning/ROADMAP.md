@@ -52,7 +52,7 @@ Plans:
 
 Plans:
 - [x] 02-01-PLAN.md — Create db.mjs (node:sqlite storage module) + gitignore + engines bump
-- [ ] 02-02-PLAN.md — Wire scan.mjs to db.mjs + create migrate-seen.mjs
+- [x] 02-02-PLAN.md — Wire scan.mjs to db.mjs + create migrate-seen.mjs
 
 ### Phase 3: Scheduling
 **Goal**: Scans run unattended on a regular interval without operator intervention

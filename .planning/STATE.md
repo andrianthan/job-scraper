@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 02-sqlite-storage/02-01-PLAN.md
-last_updated: "2026-06-28T21:21:48.401Z"
+status: verifying
+stopped_at: Completed 02-sqlite-storage/02-02-PLAN.md
+last_updated: "2026-06-28T21:31:09.332Z"
 last_activity: 2026-06-28
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
   percent: 0
 ---
 
@@ -27,7 +27,7 @@ See: .planning/PROJECT.md (updated 2026-06-28)
 
 Phase: 2 (SQLite Storage) — EXECUTING
 Plan: 2 of 2
-Status: Ready to execute
+Status: Phase complete — ready for verification
 Last activity: 2026-06-28
 
 Progress: [░░░░░░░░░░] 0%
@@ -54,6 +54,7 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase 01-scanner-hardening P01 | 6 | 2 tasks | 3 files |
 | Phase 02-sqlite-storage P01 | 2 | 2 tasks | 4 files |
+| Phase 02-sqlite-storage P02-02 | 6 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -71,6 +72,7 @@ Recent decisions affecting current work:
 - [Phase 01-scanner-hardening]: No-provider boards count as failed (not a separate skipped bucket) — simpler summary metrics
 - [Phase 02-sqlite-storage]: node:sqlite (DatabaseSync) chosen over better-sqlite3 — preserves zero npm deps, requires Node 22+
 - [Phase 02-sqlite-storage]: seenRoles() filters empty titles to handle migration-era rows cleanly
+- [Phase 02-sqlite-storage]: Synthetic URL keyed role:company:title keeps seenRoles() working for migration-era entries without colliding with real ATS URLs
 
 ### Pending Todos
 
@@ -82,6 +84,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-28T21:21:48.399Z
-Stopped at: Completed 02-sqlite-storage/02-01-PLAN.md
+Last session: 2026-06-28T21:31:09.329Z
+Stopped at: Completed 02-sqlite-storage/02-02-PLAN.md
 Resume file: None

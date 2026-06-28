@@ -22,7 +22,7 @@ REQ-IDs map to exactly one phase (see Traceability, filled by roadmap).
 - [x] **STORE-02**: Dedup is enforced by the DB — a job URL already seen is never re-emitted across runs
 - [x] **STORE-03**: Fuzzy same-company role dedup is preserved against stored history
 - [x] **STORE-04**: Each scan run is recorded (timestamp, counts) for run history
-- [ ] **STORE-05**: A one-time migration imports any existing data/seen.json into the DB
+- [x] **STORE-05**: A one-time migration imports any existing data/seen.json into the DB
 
 ### Scheduling
 - [ ] **SCHED-01**: The scan runs unattended on an interval via a scheduler (cron and/or GitHub Actions)
@@ -66,7 +66,7 @@ REQ-IDs map to exactly one phase (see Traceability, filled by roadmap).
 | STORE-02 | Phase 2 | Complete |
 | STORE-03 | Phase 2 | Complete |
 | STORE-04 | Phase 2 | Complete |
-| STORE-05 | Phase 2 | Pending |
+| STORE-05 | Phase 2 | Complete |
 | SCHED-01 | Phase 3 | Pending |
 | SCHED-02 | Phase 3 | Pending |
 | SCHED-03 | Phase 3 | Pending |
