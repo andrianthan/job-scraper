@@ -76,7 +76,10 @@ Plans:
   2. Setting NOTIFY_EMAIL delivers the digest to that address; Discord webhook fires independently if DISCORD_WEBHOOK is set
   3. Running with neither DISCORD_WEBHOOK nor NOTIFY_EMAIL set logs the digest to stdout and exits cleanly without throwing
   4. A job notified in one run is never re-notified in a subsequent run even if it re-appears in the source feed
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 04-01-PLAN.md — Notification dispatcher (Discord + Resend email + stdout fallback) + notified_at dup guard + unit tests
 
 ### Phase 5: Config, Docs & Test
 **Goal**: Any operator can set up and run the daemon end-to-end from only the README
@@ -98,5 +101,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Scanner Hardening | 1/1 | Complete    | 2026-06-28 |
 | 2. SQLite Storage | 0/2 | Complete    | 2026-06-28 |
 | 3. Scheduling | 1/1 | Complete    | 2026-06-28 |
-| 4. Notifications | 0/TBD | Not started | - |
+| 4. Notifications | 0/1 | Not started | - |
 | 5. Config, Docs & Test | 0/TBD | Not started | - |
