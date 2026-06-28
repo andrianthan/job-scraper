@@ -38,7 +38,7 @@ REQ-IDs map to exactly one phase (see Traceability, filled by roadmap).
 ### Config, Docs & Test
 - [ ] **DOCS-01**: All config (boards, filters, channels, schedule) is documented with examples
 - [ ] **DOCS-02**: README covers setup → first run → scheduling end to end
-- [ ] **TEST-01**: An end-to-end test exercises fetch → filter → dedup → notify with stubbed network and a temp DB, asserting only-new-jobs notify
+- [x] **TEST-01**: An end-to-end test exercises fetch → filter → dedup → notify with stubbed network and a temp DB, asserting only-new-jobs notify
 
 ## v2 (deferred)
 
@@ -76,4 +76,4 @@ REQ-IDs map to exactly one phase (see Traceability, filled by roadmap).
 | NOTIF-04 | Phase 4 | Complete |
 | DOCS-01 | Phase 5 | Pending |
 | DOCS-02 | Phase 5 | Pending |
-| TEST-01 | Phase 5 | Pending |
+| TEST-01 | Phase 5 | Complete |

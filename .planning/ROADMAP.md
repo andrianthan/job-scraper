@@ -92,7 +92,7 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 05-01-PLAN.md — scan.mjs testability refactor (export main + guard) + e2e test + npm test script
+- [x] 05-01-PLAN.md — scan.mjs testability refactor (export main + guard) + e2e test + npm test script
 - [ ] 05-02-PLAN.md — README operator-path rewrite + config reference table + .env.example
 
 ## Progress
@@ -106,4 +106,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. SQLite Storage | 0/2 | Complete    | 2026-06-28 |
 | 3. Scheduling | 1/1 | Complete    | 2026-06-28 |
 | 4. Notifications | 1/1 | Complete    | 2026-06-28 |
-| 5. Config, Docs & Test | 0/2 | Not started | - |
+| 5. Config, Docs & Test | 1/2 | In Progress|  |
