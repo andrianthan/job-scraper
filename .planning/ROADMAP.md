@@ -20,7 +20,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: SQLite Storage** - Replace data/seen.json with a durable SQLite store for jobs, dedup, and run history (completed 2026-06-28)
 - [x] **Phase 3: Scheduling** - Wire unattended cron + GitHub Actions execution with incremental-only notifications (completed 2026-06-28)
 - [x] **Phase 4: Notifications** - Digest batching, email channel, graceful degradation, sent-log dedup guard (completed 2026-06-28)
-- [ ] **Phase 5: Config, Docs & Test** - Operator-ready README, config examples, and a passing end-to-end test suite
+- [x] **Phase 5: Config, Docs & Test** - Operator-ready README, config examples, and a passing end-to-end test suite (completed 2026-06-28)
 
 ## Phase Details
 
@@ -93,7 +93,7 @@ Plans:
 
 Plans:
 - [x] 05-01-PLAN.md — scan.mjs testability refactor (export main + guard) + e2e test + npm test script
-- [ ] 05-02-PLAN.md — README operator-path rewrite + config reference table + .env.example
+- [x] 05-02-PLAN.md — README operator-path rewrite + config reference table + .env.example
 
 ## Progress
 
@@ -106,4 +106,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. SQLite Storage | 0/2 | Complete    | 2026-06-28 |
 | 3. Scheduling | 1/1 | Complete    | 2026-06-28 |
 | 4. Notifications | 1/1 | Complete    | 2026-06-28 |
-| 5. Config, Docs & Test | 1/2 | In Progress|  |
+| 5. Config, Docs & Test | 2/2 | Complete   | 2026-06-28 |
