@@ -13,7 +13,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { makeHttpCtx } from './providers/_http.mjs';
 import { roleFuzzyMatch } from './role-matcher.mjs';
-import { hasSeen, markSeen, seenRoles, recordRun } from './db.mjs';
+import { hasSeen, markSeen, seenRoles, recordRun, getUnnotified, markNotified } from './db.mjs';
 import config from './portals.config.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -122,9 +122,13 @@ async function main() {
 
   if (process.argv.includes('--json')) process.stdout.write(JSON.stringify(newJobs, null, 2) + '\n');
 
-  if (process.argv.includes('--notify') && newJobs.length) {
-    const { notifyDiscord } = await import('./notify.mjs');
-    await notifyDiscord(newJobs);
+  if (process.argv.includes('--notify')) {
+    const { notify } = await import('./notify.mjs');
+    const unnotified = getUnnotified(newJobs);
+    if (unnotified.length) {
+      await notify(unnotified);
+      markNotified(unnotified.map(j => j.url));
+    }
   }
 
   return newJobs;
