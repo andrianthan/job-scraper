@@ -1,0 +1,35 @@
+name: Job Board Scan
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # every hour
+  workflow_dispatch:       # manual trigger for testing
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Restore dedup DB
+        uses: actions/cache@v4
+        with:
+          path: data/jobs.db
+          key: jobs-db-v1-${{ github.run_id }}
+          restore-keys: |
+            jobs-db-v1-
+
+      - name: Ensure data directory exists
+        run: mkdir -p data
+
+      - name: Run scan
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        run: node scan.mjs --notify
