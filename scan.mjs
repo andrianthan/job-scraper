@@ -9,7 +9,7 @@
 // Zero npm deps. Node 22+ (native fetch + node:sqlite built-in).
 
 import { readdirSync } from 'node:fs';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { dirname, join } from 'path';
 import { makeHttpCtx } from './providers/_http.mjs';
 import { roleFuzzyMatch } from './role-matcher.mjs';
@@ -79,7 +79,7 @@ function passesLocation(location, f) {
 }
 
 // ── Main ──────────────────────────────────────────────────────────
-async function main() {
+export async function main() {
   const providers = await loadProviders();
   const ctx = makeHttpCtx();
 
@@ -134,4 +134,6 @@ async function main() {
   return newJobs;
 }
 
-main().catch(e => { console.error(e); process.exit(1); });
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch(e => { console.error(e); process.exit(1); });
+}

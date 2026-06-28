@@ -6,6 +6,7 @@
   "description": "Finance/business internship aggregator + notifier. ATS-API scraper core lifted from career-ops (MIT).",
   "engines": { "node": ">=22" },
   "scripts": {
+    "test": "node --test",
     "scan": "node scan.mjs",
     "scan:json": "node scan.mjs --json",
     "scan:notify": "node scan.mjs --notify",
