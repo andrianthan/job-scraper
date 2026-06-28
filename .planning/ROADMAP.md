@@ -97,6 +97,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Scanner Hardening | 1/1 | Complete    | 2026-06-28 |
 | 2. SQLite Storage | 0/2 | Complete    | 2026-06-28 |
-| 3. Scheduling | 1/1 | Complete   | 2026-06-28 |
+| 3. Scheduling | 1/1 | Complete    | 2026-06-28 |
 | 4. Notifications | 0/TBD | Not started | - |
 | 5. Config, Docs & Test | 0/TBD | Not started | - |
