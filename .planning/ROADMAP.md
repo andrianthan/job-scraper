@@ -62,7 +62,10 @@ Plans:
   1. Running a single documented command installs a local cron entry or commits a GitHub Actions workflow that fires the scan on schedule
   2. Each scheduled run notifies only for jobs not seen in any prior run — triggering the scan immediately again produces zero notifications
   3. The scheduler setup is described in one step the operator can follow without reading source code
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 03-01-PLAN.md — Idempotent cron installer + GH Actions workflow (actions/cache) + scheduling docs
 
 ### Phase 4: Notifications
 **Goal**: Notifications are batched, multi-channel, and protected against duplicate sends
@@ -94,6 +97,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Scanner Hardening | 1/1 | Complete    | 2026-06-28 |
 | 2. SQLite Storage | 0/2 | Complete    | 2026-06-28 |
-| 3. Scheduling | 0/TBD | Not started | - |
+| 3. Scheduling | 0/1 | Not started | - |
 | 4. Notifications | 0/TBD | Not started | - |
 | 5. Config, Docs & Test | 0/TBD | Not started | - |
