@@ -1,22 +1,22 @@
 // Lean scanner — the reusable core of career-ops, stripped of the agentic
 // CV/cover/tracker layers. Loads providers, fetches each company's ATS feed,
-// filters, dedups against data/seen.json, emits NEW jobs.
+// filters, dedups against data/jobs.db, emits NEW jobs.
 //
-//   node scan.mjs            → scan, print new jobs, update seen.json
+//   node scan.mjs            → scan, print new jobs, update data/jobs.db
 //   node scan.mjs --json     → also dump new jobs as JSON to stdout
 //   node scan.mjs --notify   → push new jobs to Discord (needs DISCORD_WEBHOOK_URL)
 //
-// Zero npm deps. Node 22+ (native fetch, node:sqlite).
+// Zero npm deps. Node 22+ (native fetch + node:sqlite built-in).
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
+import { readdirSync } from 'node:fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { makeHttpCtx } from './providers/_http.mjs';
 import { roleFuzzyMatch } from './role-matcher.mjs';
+import { hasSeen, markSeen, seenRoles, recordRun } from './db.mjs';
 import config from './portals.config.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const SEEN_PATH = join(__dirname, 'data', 'seen.json');
 
 // ── Load providers ────────────────────────────────────────────────
 // Auto-import every providers/*.mjs except _-prefixed shared helpers.
@@ -78,23 +78,10 @@ function passesLocation(location, f) {
   return f.allow.some(k => loc.includes(lc(k)));
 }
 
-// ── Dedup store ───────────────────────────────────────────────────
-function loadSeen() {
-  if (!existsSync(SEEN_PATH)) return { urls: {}, roles: [] };
-  try { return JSON.parse(readFileSync(SEEN_PATH, 'utf-8')); }
-  catch { return { urls: {}, roles: [] }; }
-}
-function saveSeen(seen) {
-  mkdirSync(dirname(SEEN_PATH), { recursive: true });
-  writeFileSync(SEEN_PATH, JSON.stringify(seen, null, 2));
-}
-
 // ── Main ──────────────────────────────────────────────────────────
 async function main() {
   const providers = await loadProviders();
   const ctx = makeHttpCtx();
-  const seen = loadSeen();
-  const today = new Date().toISOString().slice(0, 10);
 
   const newJobs = [];
   let scanned = 0, parked = 0, failed = 0;
@@ -113,18 +100,18 @@ async function main() {
       if (!job.url || !job.title) continue;
       if (!passesTitle(job.title, config.titleFilter)) continue;
       if (!passesLocation(job.location, config.locationFilter)) continue;
-      if (seen.urls[job.url]) continue; // exact-URL dedup
-      // fuzzy same-company repost dedup
-      const dupe = seen.roles.some(r => r.company === job.company && roleFuzzyMatch(r.title, job.title));
+      if (hasSeen(job.url)) continue; // exact-URL dedup (DB)
+      // fuzzy same-company repost dedup (reads from DB — persists across runs)
+      const storedRoles = seenRoles(job.company);
+      const dupe = storedRoles.some(r => roleFuzzyMatch(r.title, job.title));
       if (dupe) continue;
 
       newJobs.push(job);
-      seen.urls[job.url] = today;
-      seen.roles.push({ company: job.company, title: job.title });
+      markSeen(job);
     }
   }
 
-  saveSeen(seen);
+  recordRun({ scanned, parked, failed, newJobs: newJobs.length });
 
   // ── Report ──
   console.error(`\n📊 scanned ${scanned} · parked ${parked} · failed ${failed} · ${newJobs.length} new jobs`);
