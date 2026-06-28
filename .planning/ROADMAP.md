@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Scanner Hardening** - Make the existing scanner robust: error isolation, retries, run summary, parked boards, Workday banks (completed 2026-06-28)
 - [x] **Phase 2: SQLite Storage** - Replace data/seen.json with a durable SQLite store for jobs, dedup, and run history (completed 2026-06-28)
-- [ ] **Phase 3: Scheduling** - Wire unattended cron + GitHub Actions execution with incremental-only notifications
+- [x] **Phase 3: Scheduling** - Wire unattended cron + GitHub Actions execution with incremental-only notifications (completed 2026-06-28)
 - [ ] **Phase 4: Notifications** - Digest batching, email channel, graceful degradation, sent-log dedup guard
 - [ ] **Phase 5: Config, Docs & Test** - Operator-ready README, config examples, and a passing end-to-end test suite
 
@@ -65,7 +65,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 03-01-PLAN.md — Idempotent cron installer + GH Actions workflow (actions/cache) + scheduling docs
+- [x] 03-01-PLAN.md — Idempotent cron installer + GH Actions workflow (actions/cache) + scheduling docs
 
 ### Phase 4: Notifications
 **Goal**: Notifications are batched, multi-channel, and protected against duplicate sends
@@ -97,6 +97,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Scanner Hardening | 1/1 | Complete    | 2026-06-28 |
 | 2. SQLite Storage | 0/2 | Complete    | 2026-06-28 |
-| 3. Scheduling | 0/1 | Not started | - |
+| 3. Scheduling | 1/1 | Complete   | 2026-06-28 |
 | 4. Notifications | 0/TBD | Not started | - |
 | 5. Config, Docs & Test | 0/TBD | Not started | - |

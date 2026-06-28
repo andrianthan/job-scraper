@@ -25,9 +25,9 @@ REQ-IDs map to exactly one phase (see Traceability, filled by roadmap).
 - [x] **STORE-05**: A one-time migration imports any existing data/seen.json into the DB
 
 ### Scheduling
-- [ ] **SCHED-01**: The scan runs unattended on an interval via a scheduler (cron and/or GitHub Actions)
-- [ ] **SCHED-02**: Scheduled runs are incremental — only genuinely new postings trigger notifications
-- [ ] **SCHED-03**: A documented one-command setup brings the scheduler up (local cron entry or committed CI workflow)
+- [x] **SCHED-01**: The scan runs unattended on an interval via a scheduler (cron and/or GitHub Actions)
+- [x] **SCHED-02**: Scheduled runs are incremental — only genuinely new postings trigger notifications
+- [x] **SCHED-03**: A documented one-command setup brings the scheduler up (local cron entry or committed CI workflow)
 
 ### Notifications
 - [ ] **NOTIF-01**: New jobs from a run are batched into a single digest notification (not one ping per job)
@@ -67,9 +67,9 @@ REQ-IDs map to exactly one phase (see Traceability, filled by roadmap).
 | STORE-03 | Phase 2 | Complete |
 | STORE-04 | Phase 2 | Complete |
 | STORE-05 | Phase 2 | Complete |
-| SCHED-01 | Phase 3 | Pending |
-| SCHED-02 | Phase 3 | Pending |
-| SCHED-03 | Phase 3 | Pending |
+| SCHED-01 | Phase 3 | Complete |
+| SCHED-02 | Phase 3 | Complete |
+| SCHED-03 | Phase 3 | Complete |
 | NOTIF-01 | Phase 4 | Pending |
 | NOTIF-02 | Phase 4 | Pending |
 | NOTIF-03 | Phase 4 | Pending |

@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 02-sqlite-storage/02-02-PLAN.md
-last_updated: "2026-06-28T21:37:31.342Z"
+stopped_at: Completed 03-scheduling/03-01-PLAN.md
+last_updated: "2026-06-28T21:45:16.997Z"
 last_activity: 2026-06-28
 progress:
   total_phases: 5
-  completed_phases: 2
-  total_plans: 3
-  completed_plans: 3
+  completed_phases: 3
+  total_plans: 4
+  completed_plans: 4
   percent: 0
 ---
 
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-28)
 
 **Core value:** New, relevant internship postings reach the user reliably and without duplicates
-**Current focus:** Phase 2 — SQLite Storage
+**Current focus:** Phase 3 — Scheduling
 
 ## Current Position
 
-Phase: 3
-Plan: Not started
+Phase: 3 (Scheduling) — EXECUTING
+Plan: 1 of 1
 Status: Phase complete — ready for verification
 Last activity: 2026-06-28
 
@@ -55,6 +55,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 01-scanner-hardening P01 | 6 | 2 tasks | 3 files |
 | Phase 02-sqlite-storage P01 | 2 | 2 tasks | 4 files |
 | Phase 02-sqlite-storage P02-02 | 6 | 2 tasks | 2 files |
+| Phase 03-scheduling P01 | 2 | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -73,6 +74,8 @@ Recent decisions affecting current work:
 - [Phase 02-sqlite-storage]: node:sqlite (DatabaseSync) chosen over better-sqlite3 — preserves zero npm deps, requires Node 22+
 - [Phase 02-sqlite-storage]: seenRoles() filters empty titles to handle migration-era rows cleanly
 - [Phase 02-sqlite-storage]: Synthetic URL keyed role:company:title keeps seenRoles() working for migration-era entries without colliding with real ATS URLs
+- [Phase 03-scheduling]: Idempotent cron install uses grep -qF anchored on project dir + binary to prevent duplicates across multiple projects on same machine
+- [Phase 03-scheduling]: GH Actions cache: unique run_id key guarantees save on post; prefix restore-keys picks up most recent DB snapshot — rolling incremental chain
 
 ### Pending Todos
 
@@ -84,6 +87,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-28T21:31:09.329Z
-Stopped at: Completed 02-sqlite-storage/02-02-PLAN.md
+Last session: 2026-06-28T21:45:16.996Z
+Stopped at: Completed 03-scheduling/03-01-PLAN.md
 Resume file: None
