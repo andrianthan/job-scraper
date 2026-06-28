@@ -48,7 +48,11 @@ Plans:
   2. Fuzzy same-company role dedup catches reposts seen in prior runs, not only the current in-memory batch
   3. Each completed scan writes a timestamped run record (boards tried, new jobs found) readable from the DB
   4. Running the migration script once imports all URL entries from data/seen.json into the DB with no duplicates introduced
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Create db.mjs (node:sqlite storage module) + gitignore + engines bump
+- [ ] 02-02-PLAN.md — Wire scan.mjs to db.mjs + create migrate-seen.mjs
 
 ### Phase 3: Scheduling
 **Goal**: Scans run unattended on a regular interval without operator intervention
@@ -89,7 +93,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scanner Hardening | 1/1 | Complete    | 2026-06-28 |
-| 2. SQLite Storage | 0/TBD | Not started | - |
+| 2. SQLite Storage | 0/2 | Not started | - |
 | 3. Scheduling | 0/TBD | Not started | - |
 | 4. Notifications | 0/TBD | Not started | - |
 | 5. Config, Docs & Test | 0/TBD | Not started | - |
