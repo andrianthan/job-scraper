@@ -9,6 +9,7 @@
     "scan": "node scan.mjs",
     "scan:json": "node scan.mjs --json",
     "scan:notify": "node scan.mjs --notify",
-    "verify": "node verify-slugs.mjs"
+    "verify": "node verify-slugs.mjs",
+    "schedule:install": "sh scripts/install-cron.sh"
   }
 }
