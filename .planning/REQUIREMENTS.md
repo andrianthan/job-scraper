@@ -36,8 +36,8 @@ REQ-IDs map to exactly one phase (see Traceability, filled by roadmap).
 - [x] **NOTIF-04**: A sent-notification log prevents re-notifying for the same job
 
 ### Config, Docs & Test
-- [ ] **DOCS-01**: All config (boards, filters, channels, schedule) is documented with examples
-- [ ] **DOCS-02**: README covers setup → first run → scheduling end to end
+- [x] **DOCS-01**: All config (boards, filters, channels, schedule) is documented with examples
+- [x] **DOCS-02**: README covers setup → first run → scheduling end to end
 - [x] **TEST-01**: An end-to-end test exercises fetch → filter → dedup → notify with stubbed network and a temp DB, asserting only-new-jobs notify
 
 ## v2 (deferred)
@@ -74,6 +74,6 @@ REQ-IDs map to exactly one phase (see Traceability, filled by roadmap).
 | NOTIF-02 | Phase 4 | Complete |
 | NOTIF-03 | Phase 4 | Complete |
 | NOTIF-04 | Phase 4 | Complete |
-| DOCS-01 | Phase 5 | Pending |
-| DOCS-02 | Phase 5 | Pending |
+| DOCS-01 | Phase 5 | Complete |
+| DOCS-02 | Phase 5 | Complete |
 | TEST-01 | Phase 5 | Complete |
