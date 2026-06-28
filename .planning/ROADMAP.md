@@ -17,7 +17,7 @@ verifiable capability on top of what came before.
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Scanner Hardening** - Make the existing scanner robust: error isolation, retries, run summary, parked boards, Workday banks (completed 2026-06-28)
-- [ ] **Phase 2: SQLite Storage** - Replace data/seen.json with a durable SQLite store for jobs, dedup, and run history
+- [x] **Phase 2: SQLite Storage** - Replace data/seen.json with a durable SQLite store for jobs, dedup, and run history (completed 2026-06-28)
 - [ ] **Phase 3: Scheduling** - Wire unattended cron + GitHub Actions execution with incremental-only notifications
 - [ ] **Phase 4: Notifications** - Digest batching, email channel, graceful degradation, sent-log dedup guard
 - [ ] **Phase 5: Config, Docs & Test** - Operator-ready README, config examples, and a passing end-to-end test suite
@@ -93,7 +93,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scanner Hardening | 1/1 | Complete    | 2026-06-28 |
-| 2. SQLite Storage | 0/2 | Not started | - |
+| 2. SQLite Storage | 0/2 | Complete    | 2026-06-28 |
 | 3. Scheduling | 0/TBD | Not started | - |
 | 4. Notifications | 0/TBD | Not started | - |
 | 5. Config, Docs & Test | 0/TBD | Not started | - |
