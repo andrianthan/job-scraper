@@ -22,9 +22,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: data/jobs.db
-          key: jobs-db-v1-${{ github.run_id }}
+          key: jobs-db-v2-${{ github.run_id }}
           restore-keys: |
-            jobs-db-v1-
+            jobs-db-v2-
 
       - name: Ensure data directory exists
         run: mkdir -p data
