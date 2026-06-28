@@ -36,7 +36,12 @@ export async function notifyDiscord(jobs) {
     const res = await _fetch(webhook, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ content: `🆕 ${batch.length} new internship(s)`, embeds }),
+      body: JSON.stringify({
+        username: process.env.BOT_NAME || 'Keystone',
+        avatar_url: process.env.BOT_AVATAR_URL || undefined,
+        content: `🆕 ${batch.length} new internship(s)`,
+        embeds,
+      }),
     });
     if (!res.ok) console.error(`✗ Discord ${res.status}: ${await res.text().catch(() => '')}`);
     await new Promise(r => setTimeout(r, 1000));
