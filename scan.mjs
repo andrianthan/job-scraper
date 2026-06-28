@@ -6,7 +6,7 @@
 //   node scan.mjs --json     → also dump new jobs as JSON to stdout
 //   node scan.mjs --notify   → push new jobs to Discord (needs DISCORD_WEBHOOK_URL)
 //
-// Zero npm deps. Node 18+ (native fetch).
+// Zero npm deps. Node 22+ (native fetch, node:sqlite).
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync } from 'fs';
 import { fileURLToPath } from 'url';

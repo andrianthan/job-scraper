@@ -1,0 +1,4 @@
+node_modules/
+data/seen.json
+data/jobs.db
+.env
