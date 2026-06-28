@@ -33,3 +33,5 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: node scan.mjs --notify
+
+# job-scraper internship bot — AKPSI
