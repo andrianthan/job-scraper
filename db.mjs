@@ -8,7 +8,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const DB_PATH = join(__dirname, 'data', 'jobs.db');
+const DB_PATH = process.env.DB_PATH || join(__dirname, 'data', 'jobs.db');
 
 let _db = null;
 
@@ -40,6 +40,9 @@ export function openDb() {
       new_jobs       INTEGER NOT NULL DEFAULT 0
     );
   `);
+  // Idempotent migration: add notified_at column if not already present.
+  // SQLite throws if the column already exists — catch and ignore.
+  try { _db.exec('ALTER TABLE jobs ADD COLUMN notified_at TEXT'); } catch { /* already present */ }
   return _db;
 }
 
@@ -85,4 +88,40 @@ export function recordRun({ scanned, parked, failed, newJobs }) {
   db.prepare(
     'INSERT INTO runs (started_at, boards_scanned, boards_parked, boards_failed, new_jobs) VALUES (?, ?, ?, ?, ?)'
   ).run(new Date().toISOString(), scanned, parked, failed, newJobs);
+}
+
+/**
+ * Resets the module-level DB singleton so the next openDb() call reopens with
+ * a fresh path.  Used in tests to switch DB_PATH between test cases.
+ */
+export function _closeDb() {
+  if (_db) { _db.close(); _db = null; }
+}
+
+/**
+ * Marks job URLs as notified (sets notified_at to current ISO timestamp).
+ * Only updates rows where notified_at IS NULL — safe to call twice.
+ * @param {string[]} urls
+ */
+export function markNotified(urls) {
+  if (!urls.length) return;
+  const db = openDb();
+  const ts = new Date().toISOString();
+  const stmt = db.prepare('UPDATE jobs SET notified_at = ? WHERE url = ? AND notified_at IS NULL');
+  for (const url of urls) stmt.run(ts, url);
+}
+
+/**
+ * Filters the provided jobs array to those not yet notified (notified_at IS NULL
+ * in the DB, or not in the DB at all).
+ * @param {{ url: string }[]} jobs
+ * @returns {{ url: string }[]}
+ */
+export function getUnnotified(jobs) {
+  if (!jobs.length) return [];
+  const db = openDb();
+  return jobs.filter(j => {
+    const row = db.prepare('SELECT notified_at FROM jobs WHERE url = ?').get(j.url);
+    return !row || row.notified_at === null;
+  });
 }
