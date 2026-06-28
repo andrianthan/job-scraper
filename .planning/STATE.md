@@ -1,3 +1,19 @@
+---
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
+status: verifying
+stopped_at: Completed 01-scanner-hardening/01-01-PLAN.md
+last_updated: "2026-06-28T21:04:04.915Z"
+last_activity: 2026-06-28
+progress:
+  total_phases: 5
+  completed_phases: 1
+  total_plans: 1
+  completed_plans: 1
+  percent: 0
+---
+
 # Project State
 
 ## Project Reference
@@ -9,16 +25,17 @@ See: .planning/PROJECT.md (updated 2026-06-28)
 
 ## Current Position
 
-Phase: 1 of 5 (Scanner Hardening)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-06-28 — Roadmap created; all 20 v1 requirements mapped across 5 phases
+Phase: 1 (Scanner Hardening) — EXECUTING
+Plan: 1 of 1
+Status: Phase complete — ready for verification
+Last activity: 2026-06-28
 
 Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed: 0
 - Average duration: -
 - Total execution time: 0 hours
@@ -30,10 +47,12 @@ Progress: [░░░░░░░░░░] 0%
 | - | - | - | - |
 
 **Recent Trend:**
+
 - Last 5 plans: none yet
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 01-scanner-hardening P01 | 6 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -46,6 +65,9 @@ Recent decisions affecting current work:
 - Init: SQLite over flat JSON (durable dedup + run history)
 - Init: CLI daemon only for this milestone (web is a separate milestone)
 - Init: Keep deps minimal; prefer node:sqlite built-in (Node 22+) or better-sqlite3
+- [Phase 01-scanner-hardening]: Retry logic lives in _http.mjs only — all providers retry automatically; per-provider loops removed as anti-pattern
+- [Phase 01-scanner-hardening]: 404/4xx errors not retried — dead slugs fail fast; 5xx/429/network errors retried up to 3x with exponential backoff+jitter
+- [Phase 01-scanner-hardening]: No-provider boards count as failed (not a separate skipped bucket) — simpler summary metrics
 
 ### Pending Todos
 
@@ -57,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-28
-Stopped at: Roadmap initialized — ready to plan Phase 1
+Last session: 2026-06-28T21:04:04.913Z
+Stopped at: Completed 01-scanner-hardening/01-01-PLAN.md
 Resume file: None

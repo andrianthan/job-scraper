@@ -11,11 +11,11 @@ REQ-IDs map to exactly one phase (see Traceability, filled by roadmap).
 ## v1 Requirements
 
 ### Scanner Hardening
-- [ ] **SCAN-01**: A failing/timeouted board is isolated — its error is logged and the run continues over all other boards
-- [ ] **SCAN-02**: Transient HTTP failures (5xx, network, rate-limit) retry with backoff before being counted as failed
-- [ ] **SCAN-03**: Each run prints a summary: boards scanned / skipped / failed and count of new jobs
-- [ ] **SCAN-04**: Disabled (`enabled:false`) boards are skipped by the scan but reported as parked
-- [ ] **SCAN-05**: Workday banks (Morgan Stanley, Citi) are wired and verified live; GS/JPM/Citadel documented as parked pending Avature/Oracle providers
+- [x] **SCAN-01**: A failing/timeouted board is isolated — its error is logged and the run continues over all other boards
+- [x] **SCAN-02**: Transient HTTP failures (5xx, network, rate-limit) retry with backoff before being counted as failed
+- [x] **SCAN-03**: Each run prints a summary: boards scanned / skipped / failed and count of new jobs
+- [x] **SCAN-04**: Disabled (`enabled:false`) boards are skipped by the scan but reported as parked
+- [x] **SCAN-05**: Workday banks (Morgan Stanley, Citi) are wired and verified live; GS/JPM/Citadel documented as parked pending Avature/Oracle providers
 
 ### Storage
 - [ ] **STORE-01**: Job postings persist in a SQLite database (replacing data/seen.json)
@@ -57,11 +57,11 @@ REQ-IDs map to exactly one phase (see Traceability, filled by roadmap).
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| SCAN-01 | Phase 1 | Pending |
-| SCAN-02 | Phase 1 | Pending |
-| SCAN-03 | Phase 1 | Pending |
-| SCAN-04 | Phase 1 | Pending |
-| SCAN-05 | Phase 1 | Pending |
+| SCAN-01 | Phase 1 | Complete |
+| SCAN-02 | Phase 1 | Complete |
+| SCAN-03 | Phase 1 | Complete |
+| SCAN-04 | Phase 1 | Complete |
+| SCAN-05 | Phase 1 | Complete |
 | STORE-01 | Phase 2 | Pending |
 | STORE-02 | Phase 2 | Pending |
 | STORE-03 | Phase 2 | Pending |
