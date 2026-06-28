@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 03-scheduling/03-01-PLAN.md
-last_updated: "2026-06-28T21:49:01.152Z"
+stopped_at: Completed 04-notifications/04-01-PLAN.md
+last_updated: "2026-06-28T22:01:05.167Z"
 last_activity: 2026-06-28
 progress:
   total_phases: 5
-  completed_phases: 3
-  total_plans: 4
-  completed_plans: 4
+  completed_phases: 4
+  total_plans: 5
+  completed_plans: 5
   percent: 0
 ---
 
@@ -21,12 +21,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-28)
 
 **Core value:** New, relevant internship postings reach the user reliably and without duplicates
-**Current focus:** Phase 3 — Scheduling
+**Current focus:** Phase 4 — Notifications
 
 ## Current Position
 
-Phase: 4
-Plan: Not started
+Phase: 4 (Notifications) — EXECUTING
+Plan: 1 of 1
 Status: Phase complete — ready for verification
 Last activity: 2026-06-28
 
@@ -56,6 +56,7 @@ Progress: [░░░░░░░░░░] 0%
 | Phase 02-sqlite-storage P01 | 2 | 2 tasks | 4 files |
 | Phase 02-sqlite-storage P02-02 | 6 | 2 tasks | 2 files |
 | Phase 03-scheduling P01 | 2 | 3 tasks | 4 files |
+| Phase 04-notifications P04-01 | 3 | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,7 @@ Recent decisions affecting current work:
 - [Phase 02-sqlite-storage]: Synthetic URL keyed role:company:title keeps seenRoles() working for migration-era entries without colliding with real ATS URLs
 - [Phase 03-scheduling]: Idempotent cron install uses grep -qF anchored on project dir + binary to prevent duplicates across multiple projects on same machine
 - [Phase 03-scheduling]: GH Actions cache: unique run_id key guarantees save on post; prefix restore-keys picks up most recent DB snapshot — rolling incremental chain
+- [Phase 04-notifications]: Resend REST API over SMTP keeps zero npm deps; notified_at column guard is idempotent; markNotified called after notify() for retry safety; Promise.allSettled fan-out isolates channel failures
 
 ### Pending Todos
 
@@ -87,6 +89,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-28T21:45:16.996Z
-Stopped at: Completed 03-scheduling/03-01-PLAN.md
+Last session: 2026-06-28T22:01:05.164Z
+Stopped at: Completed 04-notifications/04-01-PLAN.md
 Resume file: None

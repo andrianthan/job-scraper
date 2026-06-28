@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Scanner Hardening** - Make the existing scanner robust: error isolation, retries, run summary, parked boards, Workday banks (completed 2026-06-28)
 - [x] **Phase 2: SQLite Storage** - Replace data/seen.json with a durable SQLite store for jobs, dedup, and run history (completed 2026-06-28)
 - [x] **Phase 3: Scheduling** - Wire unattended cron + GitHub Actions execution with incremental-only notifications (completed 2026-06-28)
-- [ ] **Phase 4: Notifications** - Digest batching, email channel, graceful degradation, sent-log dedup guard
+- [x] **Phase 4: Notifications** - Digest batching, email channel, graceful degradation, sent-log dedup guard (completed 2026-06-28)
 - [ ] **Phase 5: Config, Docs & Test** - Operator-ready README, config examples, and a passing end-to-end test suite
 
 ## Phase Details
@@ -79,7 +79,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 04-01-PLAN.md — Notification dispatcher (Discord + Resend email + stdout fallback) + notified_at dup guard + unit tests
+- [x] 04-01-PLAN.md — Notification dispatcher (Discord + Resend email + stdout fallback) + notified_at dup guard + unit tests
 
 ### Phase 5: Config, Docs & Test
 **Goal**: Any operator can set up and run the daemon end-to-end from only the README
@@ -101,5 +101,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Scanner Hardening | 1/1 | Complete    | 2026-06-28 |
 | 2. SQLite Storage | 0/2 | Complete    | 2026-06-28 |
 | 3. Scheduling | 1/1 | Complete    | 2026-06-28 |
-| 4. Notifications | 0/1 | Not started | - |
+| 4. Notifications | 1/1 | Complete   | 2026-06-28 |
 | 5. Config, Docs & Test | 0/TBD | Not started | - |

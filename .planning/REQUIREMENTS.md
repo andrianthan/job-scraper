@@ -30,10 +30,10 @@ REQ-IDs map to exactly one phase (see Traceability, filled by roadmap).
 - [x] **SCHED-03**: A documented one-command setup brings the scheduler up (local cron entry or committed CI workflow)
 
 ### Notifications
-- [ ] **NOTIF-01**: New jobs from a run are batched into a single digest notification (not one ping per job)
-- [ ] **NOTIF-02**: Email is supported as a notification channel alongside Discord
-- [ ] **NOTIF-03**: The active channel(s) are selectable via config/env; absent config degrades gracefully (logs, no crash)
-- [ ] **NOTIF-04**: A sent-notification log prevents re-notifying for the same job
+- [x] **NOTIF-01**: New jobs from a run are batched into a single digest notification (not one ping per job)
+- [x] **NOTIF-02**: Email is supported as a notification channel alongside Discord
+- [x] **NOTIF-03**: The active channel(s) are selectable via config/env; absent config degrades gracefully (logs, no crash)
+- [x] **NOTIF-04**: A sent-notification log prevents re-notifying for the same job
 
 ### Config, Docs & Test
 - [ ] **DOCS-01**: All config (boards, filters, channels, schedule) is documented with examples
@@ -70,10 +70,10 @@ REQ-IDs map to exactly one phase (see Traceability, filled by roadmap).
 | SCHED-01 | Phase 3 | Complete |
 | SCHED-02 | Phase 3 | Complete |
 | SCHED-03 | Phase 3 | Complete |
-| NOTIF-01 | Phase 4 | Pending |
-| NOTIF-02 | Phase 4 | Pending |
-| NOTIF-03 | Phase 4 | Pending |
-| NOTIF-04 | Phase 4 | Pending |
+| NOTIF-01 | Phase 4 | Complete |
+| NOTIF-02 | Phase 4 | Complete |
+| NOTIF-03 | Phase 4 | Complete |
+| NOTIF-04 | Phase 4 | Complete |
 | DOCS-01 | Phase 5 | Pending |
 | DOCS-02 | Phase 5 | Pending |
 | TEST-01 | Phase 5 | Pending |
