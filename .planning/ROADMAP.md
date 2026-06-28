@@ -89,7 +89,11 @@ Plans:
   1. README provides a sequential path from git clone to first scheduled notification without needing to read source code
   2. Every configurable value (boards, filters, channels, schedule interval) has a documented example with valid defaults
   3. The test command passes with stubbed network, exercising the full fetch → filter → dedup → notify pipeline against a temp SQLite DB
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+- [ ] 05-01-PLAN.md — scan.mjs testability refactor (export main + guard) + e2e test + npm test script
+- [ ] 05-02-PLAN.md — README operator-path rewrite + config reference table + .env.example
 
 ## Progress
 
@@ -102,4 +106,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. SQLite Storage | 0/2 | Complete    | 2026-06-28 |
 | 3. Scheduling | 1/1 | Complete    | 2026-06-28 |
 | 4. Notifications | 1/1 | Complete    | 2026-06-28 |
-| 5. Config, Docs & Test | 0/TBD | Not started | - |
+| 5. Config, Docs & Test | 0/2 | Not started | - |
