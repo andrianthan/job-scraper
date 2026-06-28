@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: Completed 01-scanner-hardening/01-01-PLAN.md
-last_updated: "2026-06-28T21:10:55.520Z"
+status: executing
+stopped_at: Completed 02-sqlite-storage/02-01-PLAN.md
+last_updated: "2026-06-28T21:21:48.401Z"
 last_activity: 2026-06-28
 progress:
   total_phases: 5
   completed_phases: 1
-  total_plans: 1
-  completed_plans: 1
+  total_plans: 3
+  completed_plans: 2
   percent: 0
 ---
 
@@ -21,13 +21,13 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-28)
 
 **Core value:** New, relevant internship postings reach the user reliably and without duplicates
-**Current focus:** Phase 1 — Scanner Hardening
+**Current focus:** Phase 2 — SQLite Storage
 
 ## Current Position
 
-Phase: 2
-Plan: Not started
-Status: Phase complete — ready for verification
+Phase: 2 (SQLite Storage) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
 Last activity: 2026-06-28
 
 Progress: [░░░░░░░░░░] 0%
@@ -53,6 +53,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 01-scanner-hardening P01 | 6 | 2 tasks | 3 files |
+| Phase 02-sqlite-storage P01 | 2 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -68,6 +69,8 @@ Recent decisions affecting current work:
 - [Phase 01-scanner-hardening]: Retry logic lives in _http.mjs only — all providers retry automatically; per-provider loops removed as anti-pattern
 - [Phase 01-scanner-hardening]: 404/4xx errors not retried — dead slugs fail fast; 5xx/429/network errors retried up to 3x with exponential backoff+jitter
 - [Phase 01-scanner-hardening]: No-provider boards count as failed (not a separate skipped bucket) — simpler summary metrics
+- [Phase 02-sqlite-storage]: node:sqlite (DatabaseSync) chosen over better-sqlite3 — preserves zero npm deps, requires Node 22+
+- [Phase 02-sqlite-storage]: seenRoles() filters empty titles to handle migration-era rows cleanly
 
 ### Pending Todos
 
@@ -79,6 +82,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-28T21:04:04.913Z
-Stopped at: Completed 01-scanner-hardening/01-01-PLAN.md
+Last session: 2026-06-28T21:21:48.399Z
+Stopped at: Completed 02-sqlite-storage/02-01-PLAN.md
 Resume file: None

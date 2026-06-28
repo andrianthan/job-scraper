@@ -18,10 +18,10 @@ REQ-IDs map to exactly one phase (see Traceability, filled by roadmap).
 - [x] **SCAN-05**: Workday banks (Morgan Stanley, Citi) are wired and verified live; GS/JPM/Citadel documented as parked pending Avature/Oracle providers
 
 ### Storage
-- [ ] **STORE-01**: Job postings persist in a SQLite database (replacing data/seen.json)
-- [ ] **STORE-02**: Dedup is enforced by the DB — a job URL already seen is never re-emitted across runs
-- [ ] **STORE-03**: Fuzzy same-company role dedup is preserved against stored history
-- [ ] **STORE-04**: Each scan run is recorded (timestamp, counts) for run history
+- [x] **STORE-01**: Job postings persist in a SQLite database (replacing data/seen.json)
+- [x] **STORE-02**: Dedup is enforced by the DB — a job URL already seen is never re-emitted across runs
+- [x] **STORE-03**: Fuzzy same-company role dedup is preserved against stored history
+- [x] **STORE-04**: Each scan run is recorded (timestamp, counts) for run history
 - [ ] **STORE-05**: A one-time migration imports any existing data/seen.json into the DB
 
 ### Scheduling
@@ -62,10 +62,10 @@ REQ-IDs map to exactly one phase (see Traceability, filled by roadmap).
 | SCAN-03 | Phase 1 | Complete |
 | SCAN-04 | Phase 1 | Complete |
 | SCAN-05 | Phase 1 | Complete |
-| STORE-01 | Phase 2 | Pending |
-| STORE-02 | Phase 2 | Pending |
-| STORE-03 | Phase 2 | Pending |
-| STORE-04 | Phase 2 | Pending |
+| STORE-01 | Phase 2 | Complete |
+| STORE-02 | Phase 2 | Complete |
+| STORE-03 | Phase 2 | Complete |
+| STORE-04 | Phase 2 | Complete |
 | STORE-05 | Phase 2 | Pending |
 | SCHED-01 | Phase 3 | Pending |
 | SCHED-02 | Phase 3 | Pending |
