@@ -52,6 +52,7 @@ jobs:
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
           JOBSPY_PYTHON: python3
           JOBSPY_PROXIES: ${{ secrets.JOBSPY_PROXIES }}
+          MAX_JOB_AGE_DAYS: '7'
         run: node scan.mjs --notify
 
 # job-scraper internship bot — AKPSI
