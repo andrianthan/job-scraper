@@ -46,7 +46,6 @@ export async function notifyDiscord(jobs) {
         j.postedAt && `🗓️ Posted <t:${Math.floor(j.postedAt / 1000)}:f>`,
       ].filter(Boolean).join('\n') || undefined,
       color: 0x2b6cb0,
-      ...(j.postedAt ? { timestamp: new Date(j.postedAt).toISOString() } : {}),
       ...sourceFooter(j),
     }));
 
@@ -87,7 +86,6 @@ export async function notifyFieldChannels(jobs) {
           job.postedAt && `🗓️ Posted <t:${Math.floor(job.postedAt / 1000)}:f>`,
         ].filter(Boolean).join('\n') || undefined,
         color: 0x2b6cb0,
-        ...(job.postedAt ? { timestamp: new Date(job.postedAt).toISOString() } : {}),
         ...sourceFooter(job),
       }));
       const roleIds = [...new Set(batch.flatMap(e => e.roleIds))];
