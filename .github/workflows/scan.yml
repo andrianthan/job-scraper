@@ -39,6 +39,9 @@ jobs:
           FIELD_WEBHOOK_MARKETING_SALES: ${{ secrets.FIELD_WEBHOOK_MARKETING_SALES }}
           FIELD_WEBHOOK_TECH_DATA: ${{ secrets.FIELD_WEBHOOK_TECH_DATA }}
           FIELD_WEBHOOK_OPS_HR: ${{ secrets.FIELD_WEBHOOK_OPS_HR }}
+          FIELD_WEBHOOK_FELLOWSHIPS: ${{ secrets.FIELD_WEBHOOK_FELLOWSHIPS }}
+          OPENROUTER_JOB_SCRAPER: ${{ secrets.OPENROUTER_JOB_SCRAPER }}
+          FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
         run: node scan.mjs --notify
 
 # job-scraper internship bot — AKPSI

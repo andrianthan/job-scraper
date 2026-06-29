@@ -26,10 +26,13 @@ export default {
       'Early Insight', 'Discovery Program', 'Rising Sophomore', 'Rising Junior',
       'Scholars Program', 'Fellowship', 'Apprentice',
     ],
-    // any negative present → drop, even if a positive matched
+    // any negative present → drop, even if a positive matched.
+    // NOTE: engineering terms (Engineer/Developer/Software/Data Scientist) are
+    // intentionally NOT excluded — tech/data internships are in scope and route
+    // to #tech-data-internships. Only seniority/experience markers are blocked.
     negative: [
       'Senior', 'Staff', 'Principal', 'Manager', 'Director', 'VP',
-      'Vice President', 'Head of', 'Engineer', 'Developer', 'Software', 'Data Scientist',
+      'Vice President', 'Head of',
       'PhD', 'Experienced', '5+ years', '10+ years', 'Full Time' /* kill non-intern FT */,
     ],
   },
@@ -71,18 +74,42 @@ export default {
     { name: 'DoorDash',   careers_url: 'https://job-boards.greenhouse.io/doordashusa' }, // verified 443
     { name: 'Airbnb',     careers_url: 'https://job-boards.greenhouse.io/airbnb' },
 
-    // ── NO PUBLIC ATS — need Avature/Oracle providers (future phase). Disabled. ──
+    // ── Expansion batch (STARTER slugs — run `node verify-slugs.mjs` to prune dead boards) ──
+    // Tech / data / product / business interns on Greenhouse
+    { name: 'Anthropic',   careers_url: 'https://job-boards.greenhouse.io/anthropic' },
+    { name: 'Databricks',  careers_url: 'https://job-boards.greenhouse.io/databricks' },
+    { name: 'Figma',       careers_url: 'https://job-boards.greenhouse.io/figma' },
+    { name: 'Reddit',      careers_url: 'https://job-boards.greenhouse.io/reddit' },
+    { name: 'Instacart',   careers_url: 'https://job-boards.greenhouse.io/instacart' },
+    { name: 'Gusto',       careers_url: 'https://job-boards.greenhouse.io/gusto' },
+    { name: 'Samsara',     careers_url: 'https://job-boards.greenhouse.io/samsara' },
+    { name: 'Point72',     careers_url: 'https://job-boards.greenhouse.io/point72' },
+    { name: 'Scale AI',    careers_url: 'https://job-boards.greenhouse.io/scaleai' },
+    { name: 'Discord',     careers_url: 'https://job-boards.greenhouse.io/discord' },
+    { name: 'Pinterest',   careers_url: 'https://job-boards.greenhouse.io/pinterest' },
+    { name: 'Flexport',    careers_url: 'https://job-boards.greenhouse.io/flexport' },
+    // Ashby
+    { name: 'Linear',      careers_url: 'https://jobs.ashbyhq.com/linear' },
+    { name: 'Vanta',       careers_url: 'https://jobs.ashbyhq.com/vanta' },
+    { name: 'OpenAI',      careers_url: 'https://jobs.ashbyhq.com/openai' },
+    { name: 'Mercury',     careers_url: 'https://jobs.ashbyhq.com/mercury' },
+    { name: 'Notion',      careers_url: 'https://jobs.ashbyhq.com/notion' },
+
+    // ── NO PUBLIC ATS — scraped via Firecrawl (provider: 'firecrawl' → scrape + LLM extract). ──
+    // Verified scrapeable (Firecrawl renders JS). Best-effort; verify output periodically.
+    { name: 'McKinsey',           careers_url: 'https://www.mckinsey.com/careers/search-jobs',
+      provider: 'firecrawl' }, // verified: extracts Business Analyst / Associate / Fellow intern roles
+    { name: 'Citadel',            careers_url: 'https://www.citadel.com/careers/open-opportunities/',
+      provider: 'firecrawl' },
+    { name: 'Citadel Securities', careers_url: 'https://www.citadelsecurities.com/careers/open-opportunities/',
+      provider: 'firecrawl' },
+    { name: 'Two Sigma',          careers_url: 'https://careers.twosigma.com/careers/OpenRoles',
+      provider: 'firecrawl' },
+
+    // ── Login/auth-walled (Avature, Oracle) — Firecrawl can't reach listings. Disabled. ──
     { name: 'Goldman Sachs',      careers_url: 'https://higher.gs.com/', enabled: false,
-      notes: 'Avature "Higher" platform — no GH/Lever/Ashby/Workday JSON. Needs Avature provider.' },
+      notes: 'Avature "Higher" platform — auth-walled; needs a dedicated Avature provider.' },
     { name: 'JPMorgan Chase',     careers_url: 'https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001', enabled: false,
-      notes: 'Oracle Recruiting Cloud — has REST (recruitingCEJobRequisitions) but needs Oracle provider.' },
-    { name: 'Citadel',            careers_url: 'https://www.citadel.com/careers/open-opportunities/', enabled: false,
-      notes: 'Custom SSR site, no public ATS API.' },
-    { name: 'Citadel Securities', careers_url: 'https://www.citadelsecurities.com/careers/open-opportunities/', enabled: false,
-      notes: 'Custom SSR site, no public ATS API.' },
-    { name: 'Two Sigma',          careers_url: 'https://careers.twosigma.com/careers/OpenRoles', enabled: false,
-      notes: 'Avature — no public JSON board API.' },
-    { name: 'McKinsey',           careers_url: 'https://www.mckinsey.com/careers/search-jobs', enabled: false,
-      notes: 'Custom site, no supported ATS API.' },
+      notes: 'Oracle Recruiting Cloud — has REST (recruitingCEJobRequisitions) but needs an Oracle provider.' },
   ],
 };

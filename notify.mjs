@@ -31,8 +31,10 @@ export async function notifyDiscord(jobs) {
       description: [
         j.location && `📍 ${j.location}`,
         j.salary && `💰 ${j.salary.min}-${j.salary.max} ${j.salary.currency}`,
+        j.postedAt && `🗓️ Posted <t:${Math.floor(j.postedAt / 1000)}:f>`,
       ].filter(Boolean).join('\n') || undefined,
       color: 0x2b6cb0,
+      ...(j.postedAt ? { timestamp: new Date(j.postedAt).toISOString() } : {}),
     }));
 
     const res = await _fetch(webhook, {
@@ -58,7 +60,7 @@ export async function notifyDiscord(jobs) {
 // a job appears in #job-board AND in every field channel it classifies into.
 // Jobs that match no role are not routed here (firehose still covers them).
 export async function notifyFieldChannels(jobs) {
-  const routed = routeJobs(jobs);
+  const routed = await routeJobs(jobs);
   if (!routed.size) return;
 
   for (const [channel, { webhook, entries }] of routed) {
@@ -69,8 +71,10 @@ export async function notifyFieldChannels(jobs) {
         description: [
           job.location && `📍 ${job.location}`,
           job.salary && `💰 ${job.salary.min}-${job.salary.max} ${job.salary.currency}`,
+          job.postedAt && `🗓️ Posted <t:${Math.floor(job.postedAt / 1000)}:f>`,
         ].filter(Boolean).join('\n') || undefined,
         color: 0x2b6cb0,
+        ...(job.postedAt ? { timestamp: new Date(job.postedAt).toISOString() } : {}),
       }));
       const roleIds = [...new Set(batch.flatMap(e => e.roleIds))];
       const pings = roleIds.map(id => `<@&${id}>`).join(' ');

@@ -34,13 +34,21 @@ async function loadProviders() {
   return providers;
 }
 
-// Explicit `provider:` field wins; else first detect() hit in load order.
+// Provider resolution order:
+//   1. Explicit `provider:` field on the entry wins.
+//   2. First ATS provider whose detect() matches the careers_url.
+//   3. Firecrawl fallback — any site with no supported ATS gets scraped +
+//      LLM-extracted, so non-Greenhouse/Lever/Ashby/Workday companies "just
+//      work" when you add them (requires FIRECRAWL_API_KEY). Firecrawl never
+//      auto-claims via detect(); it is only ever the last resort here.
 function resolveProvider(entry, providers) {
   if (entry.provider && providers.has(entry.provider)) return providers.get(entry.provider);
   for (const p of providers.values()) {
+    if (p.id === 'firecrawl') continue; // opt-in / fallback only, never via detect
     if (typeof p.detect !== 'function') continue;
     try { if (p.detect(entry)) return p; } catch { /* skip */ }
   }
+  if (process.env.FIRECRAWL_API_KEY && providers.has('firecrawl')) return providers.get('firecrawl');
   return null;
 }
 
