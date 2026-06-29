@@ -147,9 +147,19 @@ export async function main() {
   if (process.argv.includes('--notify')) {
     const { notify } = await import('./notify.mjs');
     const unnotified = getUnnotified(newJobs);
-    if (unnotified.length) {
-      await notify(unnotified);
-      markNotified(unnotified.map(j => j.url));
+    // Cap notifications per run to avoid flooding (large feeds like Simplify can
+    // surface many fresh listings at once). Notify the freshest CAP; mark ALL
+    // unnotified as notified so the overflow is suppressed, not re-sent next run.
+    // MAX_NOTIFY_PER_RUN default 40; 0 = unlimited.
+    const CAP = Number(process.env.MAX_NOTIFY_PER_RUN ?? 40);
+    let toNotify = unnotified;
+    if (CAP && unnotified.length > CAP) {
+      toNotify = [...unnotified].sort((a, b) => (b.postedAt || 0) - (a.postedAt || 0)).slice(0, CAP);
+      console.error(`⚠️  ${unnotified.length} new jobs > cap ${CAP}: notifying the ${CAP} freshest, suppressing ${unnotified.length - CAP}`);
+    }
+    if (toNotify.length) {
+      await notify(toNotify);
+      markNotified(unnotified.map(j => j.url)); // mark all seen-as-notified, incl. suppressed overflow
     }
   }
 

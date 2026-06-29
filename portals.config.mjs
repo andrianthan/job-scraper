@@ -49,6 +49,11 @@ export default {
   // Greenhouse/Lever/Ashby = free JSON APIs (preferred). Many banks use Workday
   // (slower, sometimes auth-walled) — add via providers/workday.mjs if needed.
   trackedCompanies: [
+    // ── Community aggregate feed (SimplifyJobs ~15k listings, structured + dated) ──
+    // The open-source list aggregators like intern-list.com pull from. Auto-detected
+    // by providers/simplify.mjs. Freshness filter + dedup keep it to new postings.
+    { name: 'SimplifyJobs', careers_url: 'https://raw.githubusercontent.com/SimplifyJobs/Summer2026-Internships/dev/.github/scripts/listings.json' },
+
     // ── Fintech (mostly Greenhouse/Ashby, hire business + finance interns) ──
     { name: 'Ramp',       careers_url: 'https://jobs.ashbyhq.com/ramp' },
     { name: 'Brex',       careers_url: 'https://job-boards.greenhouse.io/brex' },
