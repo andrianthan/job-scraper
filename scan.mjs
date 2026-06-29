@@ -13,7 +13,8 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import { dirname, join } from 'path';
 import { makeHttpCtx } from './providers/_http.mjs';
 import { roleFuzzyMatch } from './role-matcher.mjs';
-import { hasSeen, markSeen, seenRoles, recordRun, getUnnotified, markNotified } from './db.mjs';
+import { hasSeen, hasSeenCanon, markSeen, seenRoles, recordRun, getUnnotified, markNotified } from './db.mjs';
+import { normCompany, canonKey } from './normalize.mjs';
 import config from './portals.config.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -107,6 +108,18 @@ export async function main() {
   const newJobs = [];
   let scanned = 0, parked = 0, failed = 0;
 
+  // Companies covered by a direct provider (ATS/Firecrawl) — JobSpy search
+  // results for these are dropped so a precise direct feed is never duplicated
+  // by a board-search hit on the same firm. JobSpy's job is DISCOVERY of firms
+  // NOT on this list. (Layer 1 of overlap control; canonical dedup below is the
+  // source-agnostic safety net.)
+  const directCompanies = new Set(
+    config.trackedCompanies
+      .filter(e => e.provider !== 'jobspy' && !e.careers_url?.startsWith('jobspy://'))
+      .map(e => normCompany(e.name))
+      .filter(Boolean)
+  );
+
   for (const entry of config.trackedCompanies) {
     if (entry.enabled === false) { parked++; continue; }
     const provider = resolveProvider(entry, providers);
@@ -119,11 +132,18 @@ export async function main() {
     scanned++;
     for (const job of jobs) {
       if (!job.url || !job.title) continue;
-      job.source = provider.id; // tag origin (greenhouse/ashby/workday/simplify/firecrawl) for the notification footer
+      job.source = provider.id; // tag origin (greenhouse/ashby/workday/simplify/firecrawl/jobspy) for the notification footer
+      // Layer 1 — JobSpy company-exclusion: skip board-search hits for any firm
+      // already covered by a direct provider (precise feed wins, no overlap).
+      if (provider.id === 'jobspy' && directCompanies.has(normCompany(job.company))) continue;
       if (!passesTitle(job.title, config.titleFilter)) continue;
       if (!passesLocation(job.location, config.locationFilter)) continue;
       if (!passesFreshness(job)) continue; // skip stale/reposted-old listings
       if (hasSeen(job.url)) continue; // exact-URL dedup (DB)
+      // Layer 2 — canonical cross-source dedup: same normalized company|title
+      // seen before (any source/URL) → skip. Catches JobSpy↔ATS and JobSpy↔JobSpy
+      // (same role across the 3 searches / across boards) that exact-URL misses.
+      if (hasSeenCanon(canonKey(job.company, job.title))) continue;
       // fuzzy same-company repost dedup (reads from DB — persists across runs)
       const storedRoles = seenRoles(job.company);
       const dupe = storedRoles.some(r => roleFuzzyMatch(r.title, job.title));

@@ -6,6 +6,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { canonKey } from './normalize.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DB_PATH = process.env.DB_PATH || join(__dirname, 'data', 'jobs.db');
@@ -43,6 +44,22 @@ export function openDb() {
   // Idempotent migration: add notified_at column if not already present.
   // SQLite throws if the column already exists — catch and ignore.
   try { _db.exec('ALTER TABLE jobs ADD COLUMN notified_at TEXT'); } catch { /* already present */ }
+  // Canonical dedup key (normalized company|title) — catches the same role
+  // arriving from different sources/URLs (e.g. JobSpy indeed URL vs ATS URL).
+  let canonAdded = false;
+  try { _db.exec('ALTER TABLE jobs ADD COLUMN canon TEXT'); canonAdded = true; } catch { /* already present */ }
+  _db.exec('CREATE INDEX IF NOT EXISTS idx_jobs_canon ON jobs(canon)');
+  // One-time backfill: SQLite can't run the JS normalizer, so populate canon for
+  // existing rows here. Runs once (right after the column is added); subsequent
+  // opens skip it because the column already exists.
+  if (canonAdded) {
+    const rows = _db.prepare("SELECT url, company, title FROM jobs WHERE title != ''").all();
+    const upd = _db.prepare('UPDATE jobs SET canon = ? WHERE url = ?');
+    for (const r of rows) {
+      const k = canonKey(r.company, r.title);
+      if (k) upd.run(k, r.url);
+    }
+  }
   return _db;
 }
 
@@ -57,15 +74,28 @@ export function hasSeen(url) {
 }
 
 /**
+ * Returns true if a job with this canonical key (normalized company|title) has
+ * already been seen — regardless of source or URL. Empty key never matches.
+ * @param {string} canon
+ * @returns {boolean}
+ */
+export function hasSeenCanon(canon) {
+  if (!canon) return false;
+  const db = openDb();
+  return !!db.prepare('SELECT 1 FROM jobs WHERE canon = ?').get(canon);
+}
+
+/**
  * Persists a new job posting.  INSERT OR IGNORE — safe to call twice.
  * @param {{ url:string, company?:string, title?:string, location?:string, postedAt?:string }} job
  */
 export function markSeen(job) {
   const db = openDb();
   const today = new Date().toISOString().slice(0, 10);
+  const canon = canonKey(job.company ?? '', job.title ?? '');
   db.prepare(
-    'INSERT OR IGNORE INTO jobs (url, company, title, location, first_seen, posted_at) VALUES (?, ?, ?, ?, ?, ?)'
-  ).run(job.url, job.company ?? '', job.title ?? '', job.location ?? '', today, job.postedAt ?? null);
+    'INSERT OR IGNORE INTO jobs (url, company, title, location, first_seen, posted_at, canon) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  ).run(job.url, job.company ?? '', job.title ?? '', job.location ?? '', today, job.postedAt ?? null, canon || null);
 }
 
 /**
