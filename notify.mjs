@@ -3,6 +3,8 @@
 // No-config fallback: prints digest to stdout, exits 0 — never throws.
 // Zero npm deps — email uses Resend REST API via fetch (per D-locked decision in 04-CONTEXT.md).
 
+import { routeJobs, CHANNELS } from './field-router.mjs';
+
 // ── Test hook ────────────────────────────────────────────────────────────────
 // Inject a mock fetch in tests to assert call counts without real network.
 let _fetch = (...a) => fetch(...a);
@@ -47,6 +49,48 @@ export async function notifyDiscord(jobs) {
     await new Promise(r => setTimeout(r, 1000));
   }
   console.error(`📨 pushed ${jobs.length} job(s) to Discord`);
+}
+
+// ── Field sub-channel routing ───────────────────────────────────────────────
+// Fans each new job into its matched field channel(s) (finance, consulting,
+// marketing-sales, tech-data, ops-hr), pinging the matched role(s) so opted-in
+// members get notified. Independent of and additive to the #job-board firehose:
+// a job appears in #job-board AND in every field channel it classifies into.
+// Jobs that match no role are not routed here (firehose still covers them).
+export async function notifyFieldChannels(jobs) {
+  const routed = routeJobs(jobs);
+  if (!routed.size) return;
+
+  for (const [channel, { webhook, entries }] of routed) {
+    for (const batch of chunk(entries, 10)) {
+      const embeds = batch.map(({ job }) => ({
+        title: `${job.company} — ${job.title}`.slice(0, 256),
+        url: job.url,
+        description: [
+          job.location && `📍 ${job.location}`,
+          job.salary && `💰 ${job.salary.min}-${job.salary.max} ${job.salary.currency}`,
+        ].filter(Boolean).join('\n') || undefined,
+        color: 0x2b6cb0,
+      }));
+      const roleIds = [...new Set(batch.flatMap(e => e.roleIds))];
+      const pings = roleIds.map(id => `<@&${id}>`).join(' ');
+
+      const res = await _fetch(webhook, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          username: process.env.BOT_NAME || 'Keystone',
+          avatar_url: process.env.BOT_AVATAR_URL || undefined,
+          content: `🆕 ${batch.length} new role(s) ${pings}`.trim(),
+          embeds,
+          allowed_mentions: { parse: ['roles'] },
+        }),
+      });
+      if (!res.ok) console.error(`✗ Discord[${channel}] ${res.status}: ${await res.text().catch(() => '')}`);
+      await new Promise(r => setTimeout(r, 1000));
+    }
+    console.error(`📨 routed ${entries.length} job(s) to #${channel}`);
+  }
 }
 
 // ── Email channel (Resend REST) ───────────────────────────────────────────────
@@ -98,8 +142,9 @@ export async function notify(jobs) {
 
   const hasDiscord = !!(process.env.DISCORD_WEBHOOK_URL || process.env.DISCORD_WEBHOOK);
   const hasEmail   = !!(process.env.NOTIFY_EMAIL && process.env.RESEND_API_KEY);
+  const hasField   = Object.values(CHANNELS).some(env => process.env[env]);
 
-  if (!hasDiscord && !hasEmail) {
+  if (!hasDiscord && !hasEmail && !hasField) {
     // Graceful no-config: digest to stdout (NOTIF-03)
     console.log(`--- ${jobs.length} new internship${jobs.length !== 1 ? 's' : ''} ---`);
     for (const j of jobs) {
@@ -110,8 +155,9 @@ export async function notify(jobs) {
   }
 
   const results = await Promise.allSettled([
-    hasDiscord ? notifyDiscord(jobs) : Promise.resolve(),
-    hasEmail   ? notifyEmail(jobs)   : Promise.resolve(),
+    hasDiscord ? notifyDiscord(jobs)       : Promise.resolve(),
+    hasEmail   ? notifyEmail(jobs)         : Promise.resolve(),
+    hasField   ? notifyFieldChannels(jobs) : Promise.resolve(),
   ]);
 
   for (const r of results) {

@@ -34,6 +34,11 @@ jobs:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           BOT_NAME: Keystone
           BOT_AVATAR_URL: ${{ secrets.BOT_AVATAR_URL }}
+          FIELD_WEBHOOK_FINANCE: ${{ secrets.FIELD_WEBHOOK_FINANCE }}
+          FIELD_WEBHOOK_CONSULTING: ${{ secrets.FIELD_WEBHOOK_CONSULTING }}
+          FIELD_WEBHOOK_MARKETING_SALES: ${{ secrets.FIELD_WEBHOOK_MARKETING_SALES }}
+          FIELD_WEBHOOK_TECH_DATA: ${{ secrets.FIELD_WEBHOOK_TECH_DATA }}
+          FIELD_WEBHOOK_OPS_HR: ${{ secrets.FIELD_WEBHOOK_OPS_HR }}
         run: node scan.mjs --notify
 
 # job-scraper internship bot — AKPSI

@@ -7,9 +7,9 @@
   "engines": { "node": ">=22" },
   "scripts": {
     "test": "node --test",
-    "scan": "node scan.mjs",
-    "scan:json": "node scan.mjs --json",
-    "scan:notify": "node scan.mjs --notify",
+    "scan": "node --env-file-if-exists=.env scan.mjs",
+    "scan:json": "node --env-file-if-exists=.env scan.mjs --json",
+    "scan:notify": "node --env-file-if-exists=.env scan.mjs --notify",
     "verify": "node verify-slugs.mjs",
     "schedule:install": "sh scripts/install-cron.sh"
   }
