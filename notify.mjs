@@ -53,7 +53,7 @@ export async function notifyDiscord(jobs) {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({
-        username: process.env.BOT_NAME || 'Keystone',
+        username: process.env.BOT_NAME || 'Papa Omega Phi',
         avatar_url: process.env.BOT_AVATAR_URL || undefined,
         content: `🆕 ${batch.length} new internship(s)`,
         embeds,
@@ -95,7 +95,7 @@ export async function notifyFieldChannels(jobs) {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          username: process.env.BOT_NAME || 'Keystone',
+          username: process.env.BOT_NAME || 'Papa Omega Phi',
           avatar_url: process.env.BOT_AVATAR_URL || undefined,
           content: `🆕 ${batch.length} new role(s) ${pings}`.trim(),
           embeds,
