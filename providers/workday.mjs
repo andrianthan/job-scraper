@@ -55,7 +55,11 @@ export default {
       const body = JSON.stringify({
         limit: PAGE_SIZE,
         offset: page * PAGE_SIZE,
-        searchText: '',
+        // Optional server-side narrowing. Big boards (PwC 4k+, Walmart 2k+) would
+        // otherwise hit the MAX_PAGES cap and truncate before intern roles are
+        // reached — set entry.query (e.g. 'intern') to filter at the source.
+        // Leave unset for finance boards that name internships "Summer Analyst".
+        searchText: entry.query || '',
         appliedFacets: {},
       });
       const json = await ctx.fetchJson(ep.api, {

@@ -116,6 +116,45 @@ export default {
       notes: 'Avature "Higher" platform — auth-walled; needs a dedicated Avature provider.' },
     { name: 'JPMorgan Chase',     careers_url: 'https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001', enabled: false,
       notes: 'Oracle Recruiting Cloud — has REST (recruitingCEJobRequisitions) but needs an Oracle provider.' },
+
+    // ── Expansion batch — all endpoints live-verified to return jobs. ──
+    // Greenhouse
+    { name: 'Datadog',              careers_url: 'https://job-boards.greenhouse.io/datadog', provider: 'greenhouse' },
+    { name: 'General Atlantic',     careers_url: 'https://job-boards.greenhouse.io/generalatlantic', provider: 'greenhouse' },
+    { name: 'Lincoln International', careers_url: 'https://job-boards.greenhouse.io/lincolninternational', provider: 'greenhouse' },
+    { name: 'William Blair',        careers_url: 'https://job-boards.greenhouse.io/williamblair', provider: 'greenhouse' },
+    { name: 'HubSpot',              careers_url: 'https://job-boards.greenhouse.io/hubspotjobs', provider: 'greenhouse' },
+    { name: 'TPG',                  careers_url: 'https://job-boards.greenhouse.io/tpgcareers', provider: 'greenhouse' },
+    { name: 'Warburg Pincus',       careers_url: 'https://job-boards.greenhouse.io/warburgpincusllc', provider: 'greenhouse' },
+    // Ashby / Lever / SmartRecruiters
+    { name: 'Snowflake',            careers_url: 'https://jobs.ashbyhq.com/snowflake', provider: 'ashby' },
+    { name: 'Palantir',             careers_url: 'https://jobs.lever.co/palantir', provider: 'lever' },
+    { name: 'ServiceNow',           careers_url: 'https://careers.smartrecruiters.com/servicenow', provider: 'smartrecruiters' },
+    // Workday — finance/PE boutiques (no query: internships named "Summer Analyst")
+    { name: 'Blackstone',           careers_url: 'https://blackstone.wd1.myworkdayjobs.com/Blackstone_Campus_Careers', provider: 'workday' },
+    { name: 'Apollo Global Management', careers_url: 'https://athene.wd5.myworkdayjobs.com/Apollo_Careers', provider: 'workday' },
+    { name: 'Bain Capital',         careers_url: 'https://baincapital.wd1.myworkdayjobs.com/External_Private', provider: 'workday' },
+    { name: 'BlackRock',            careers_url: 'https://blackrock.wd1.myworkdayjobs.com/BlackRock_Professional', provider: 'workday' },
+    { name: 'Houlihan Lokey',       careers_url: 'https://hl.wd1.myworkdayjobs.com/Corporate', provider: 'workday' },
+    { name: 'Moelis & Company',     careers_url: 'https://moelis.wd1.myworkdayjobs.com/Experienced-Hires', provider: 'workday' },
+    { name: 'PJT Partners',         careers_url: 'https://pjtpartners.wd1.myworkdayjobs.com/Careers', provider: 'workday' },
+    { name: 'Guggenheim Partners',  careers_url: 'https://guggenheim.wd1.myworkdayjobs.com/Guggenheim_Careers', provider: 'workday' },
+    // Workday — tech/CPG/logistics (query:'intern' caps volume so mega boards don't truncate)
+    { name: 'Workday',              careers_url: 'https://workday.wd5.myworkdayjobs.com/Workday', provider: 'workday', query: 'intern' },
+    { name: 'Salesforce',           careers_url: 'https://salesforce.wd12.myworkdayjobs.com/External_Career_Site', provider: 'workday', query: 'intern' },
+    { name: 'Adobe',                careers_url: 'https://adobe.wd5.myworkdayjobs.com/external_experienced', provider: 'workday', query: 'intern' },
+    { name: 'PwC',                  careers_url: 'https://pwc.wd3.myworkdayjobs.com/Global_Experienced_Careers', provider: 'workday', query: 'intern' },
+    { name: 'RSM US',               careers_url: 'https://rsm.wd1.myworkdayjobs.com/RSMCareers', provider: 'workday', query: 'intern' },
+    { name: 'Procter & Gamble',     careers_url: 'https://pg.wd5.myworkdayjobs.com/1000', provider: 'workday', query: 'intern' },
+    { name: 'Unilever',             careers_url: 'https://unilever.wd3.myworkdayjobs.com/Unilever_Experienced_Professionals', provider: 'workday', query: 'intern' },
+    { name: 'PepsiCo',              careers_url: 'https://pbv.wd503.myworkdayjobs.com/external', provider: 'workday', query: 'intern' },
+    { name: 'Coca-Cola Company',    careers_url: 'https://coke.wd1.myworkdayjobs.com/coca-cola-careers', provider: 'workday', query: 'intern' },
+    { name: 'Nike',                 careers_url: 'https://nike.wd1.myworkdayjobs.com/nke', provider: 'workday', query: 'intern' },
+    { name: 'Mondelez International', careers_url: 'https://mdlz.wd3.myworkdayjobs.com/External', provider: 'workday', query: 'intern' },
+    { name: 'Target',               careers_url: 'https://target.wd5.myworkdayjobs.com/targetcareers', provider: 'workday', query: 'intern' },
+    { name: 'Walmart',              careers_url: 'https://walmart.wd504.myworkdayjobs.com/WalmartExternal', provider: 'workday', query: 'intern' },
+    { name: 'UPS',                  careers_url: 'https://hcmportal.wd5.myworkdayjobs.com/Search', provider: 'workday', query: 'intern' },
+
     // ── JobSpy search sources — keyword-based broad sweep via python-jobspy sidecar. ──
     // Requires: pip install python-jobspy  (or sidecar/requirements.txt in CI).
     // Set JOBSPY_PYTHON env var if python3 is not on PATH.
