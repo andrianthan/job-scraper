@@ -159,6 +159,14 @@ export async function notifyStatus({ scanned, parked, failed, newJobs, bySource 
   if (!webhook) return;
 
   const now = Math.floor(Date.now() / 1000);
+  const intervalHours = parseInt(process.env.SCAN_INTERVAL_HOURS || '4', 10);
+  const nowDate = new Date();
+  const nextHourMark = Math.ceil((nowDate.getUTCHours() + 1) / intervalHours) * intervalHours;
+  const nextRun = new Date(nowDate);
+  nextRun.setUTCMinutes(0, 0, 0);
+  nextRun.setUTCHours(nextHourMark % 24);
+  if (nextHourMark >= 24) nextRun.setUTCDate(nextRun.getUTCDate() + 1);
+  const nextTs = Math.floor(nextRun.getTime() / 1000);
   const breakdown = Object.entries(bySource)
     .sort((a, b) => b[1] - a[1])
     .map(([s, n]) => `${s} ${n}`)
@@ -167,6 +175,7 @@ export async function notifyStatus({ scanned, parked, failed, newJobs, bySource 
     `${failed === 0 ? '✅' : '⚠️'} **Scan complete** · <t:${now}:f>`,
     `\`${scanned}\` boards · \`${parked}\` parked · \`${failed}\` failed · \`${newJobs}\` new`,
     breakdown && `↳ ${breakdown}`,
+    `↳ Next run <t:${nextTs}:t> (<t:${nextTs}:R>)`,
   ].filter(Boolean).join('\n');
 
   try {

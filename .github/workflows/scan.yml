@@ -69,6 +69,7 @@ jobs:
           # Backfill runs (workflow_dispatch with unlimited=true) lift the cap so
           # every fresh job posts in one pass; scheduled runs keep the 40 cap.
           MAX_NOTIFY_PER_RUN: ${{ (github.event_name == 'workflow_dispatch' && inputs.unlimited == 'true') && '0' || '40' }}
+          SCAN_INTERVAL_HOURS: '4'
         run: node scan.mjs --notify
 
 # job-scraper internship bot — AKPSI
