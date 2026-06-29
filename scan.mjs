@@ -193,6 +193,13 @@ export async function main() {
     }
   }
 
+  // Status heartbeat — fires every run (incl. zero-new), self-gated on
+  // STATUS_WEBHOOK_URL so local dev runs stay silent. Proves the workflow ran.
+  if (process.env.STATUS_WEBHOOK_URL) {
+    const { notifyStatus } = await import('./notify.mjs');
+    await notifyStatus({ scanned, parked, failed, newJobs: newJobs.length, bySource });
+  }
+
   return newJobs;
 }
 

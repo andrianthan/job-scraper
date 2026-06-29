@@ -45,6 +45,7 @@ jobs:
       - name: Run scan
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          STATUS_WEBHOOK_URL: ${{ secrets.STATUS_WEBHOOK_URL }}
           BOT_NAME: Papa Omega Phi
           BOT_AVATAR_URL: ${{ secrets.BOT_AVATAR_URL }}
           FIELD_WEBHOOK_FINANCE: ${{ secrets.FIELD_WEBHOOK_FINANCE }}

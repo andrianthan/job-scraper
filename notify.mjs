@@ -149,6 +149,43 @@ export async function notifyEmail(jobs) {
   }
 }
 
+// ── Status heartbeat ──────────────────────────────────────────────────────────
+// Posts a one-line health log to STATUS_WEBHOOK_URL on EVERY run — including
+// zero-new-job runs, unlike notify() which returns early on empty. Gives a
+// public #bot-status channel a visible hourly pulse proving the workflow ran.
+// Never pings (allowed_mentions: parse []). No-op when the webhook is unset.
+export async function notifyStatus({ scanned, parked, failed, newJobs, bySource = {} }) {
+  const webhook = process.env.STATUS_WEBHOOK_URL;
+  if (!webhook) return;
+
+  const now = Math.floor(Date.now() / 1000);
+  const breakdown = Object.entries(bySource)
+    .sort((a, b) => b[1] - a[1])
+    .map(([s, n]) => `${s} ${n}`)
+    .join(' · ');
+  const content = [
+    `${failed === 0 ? '✅' : '⚠️'} **Scan complete** · <t:${now}:f>`,
+    `\`${scanned}\` boards · \`${parked}\` parked · \`${failed}\` failed · \`${newJobs}\` new`,
+    breakdown && `↳ ${breakdown}`,
+  ].filter(Boolean).join('\n');
+
+  try {
+    const res = await _fetch(webhook, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        username: process.env.BOT_NAME || 'Papa Omega Phi',
+        avatar_url: process.env.BOT_AVATAR_URL || undefined,
+        content,
+        allowed_mentions: { parse: [] }, // never notify anyone
+      }),
+    });
+    if (!res.ok) console.error(`✗ status ${res.status}: ${await res.text().catch(() => '')}`);
+  } catch (err) {
+    console.error(`✗ status webhook error: ${err.message}`);
+  }
+}
+
 // ── Dispatcher ────────────────────────────────────────────────────────────────
 // One call per run. Fans out to every configured channel.
 // No channels configured → stdout fallback, exits 0, no throw.
