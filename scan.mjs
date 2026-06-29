@@ -119,6 +119,7 @@ export async function main() {
     scanned++;
     for (const job of jobs) {
       if (!job.url || !job.title) continue;
+      job.source = provider.id; // tag origin (greenhouse/ashby/workday/simplify/firecrawl) for the notification footer
       if (!passesTitle(job.title, config.titleFilter)) continue;
       if (!passesLocation(job.location, config.locationFilter)) continue;
       if (!passesFreshness(job)) continue; // skip stale/reposted-old listings

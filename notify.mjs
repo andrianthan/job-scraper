@@ -11,6 +11,18 @@ let _fetch = (...a) => fetch(...a);
 export function _setFetch(fn) { _fetch = fn; }
 
 // ── Utilities ─────────────────────────────────────────────────────────────────
+// Friendly source labels for the embed footer (job.source = provider id).
+const SOURCE_LABELS = {
+  greenhouse: 'Greenhouse', ashby: 'Ashby', workday: 'Workday', lever: 'Lever',
+  simplify: 'SimplifyJobs', firecrawl: 'Web scrape', breezy: 'Breezy',
+  smartrecruiters: 'SmartRecruiters', workable: 'Workable', recruitee: 'Recruitee',
+  bamboohr: 'BambooHR', remoteok: 'RemoteOK', remotive: 'Remotive',
+};
+function sourceFooter(job) {
+  if (!job.source) return {};
+  return { footer: { text: `via ${SOURCE_LABELS[job.source] || job.source}` } };
+}
+
 function chunk(arr, n) {
   const out = [];
   for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n));
@@ -35,6 +47,7 @@ export async function notifyDiscord(jobs) {
       ].filter(Boolean).join('\n') || undefined,
       color: 0x2b6cb0,
       ...(j.postedAt ? { timestamp: new Date(j.postedAt).toISOString() } : {}),
+      ...sourceFooter(j),
     }));
 
     const res = await _fetch(webhook, {
@@ -75,6 +88,7 @@ export async function notifyFieldChannels(jobs) {
         ].filter(Boolean).join('\n') || undefined,
         color: 0x2b6cb0,
         ...(job.postedAt ? { timestamp: new Date(job.postedAt).toISOString() } : {}),
+        ...sourceFooter(job),
       }));
       const roleIds = [...new Set(batch.flatMap(e => e.roleIds))];
       const pings = roleIds.map(id => `<@&${id}>`).join(' ');
