@@ -33,7 +33,10 @@ function parsePostedOn(label) {
   if (/posted\s+today/i.test(label)) return Date.now();
   if (/posted\s+yesterday/i.test(label)) return Date.now() - 86_400_000;
   const m = label.match(/posted\s+(\d+)(\+?)\s*day/i);
-  if (!m || m[2] === '+') return undefined; // "30+ Days Ago" — unbounded, no usable date
+  if (!m) return undefined;
+  // "30+ Days Ago" is a lower bound (at least N days old). Stamp it AS N days
+  // old rather than undefined — otherwise the freshness gate's "no date → pass"
+  // rule lets stale reposts through. N days old correctly fails a tight window.
   return Date.now() - Number(m[1]) * 86_400_000;
 }
 
