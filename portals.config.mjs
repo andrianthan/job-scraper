@@ -116,5 +116,15 @@ export default {
       notes: 'Avature "Higher" platform — auth-walled; needs a dedicated Avature provider.' },
     { name: 'JPMorgan Chase',     careers_url: 'https://jpmc.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1001', enabled: false,
       notes: 'Oracle Recruiting Cloud — has REST (recruitingCEJobRequisitions) but needs an Oracle provider.' },
+    // ── JobSpy search sources — keyword-based broad sweep via python-jobspy sidecar. ──
+    // Requires: pip install python-jobspy  (or sidecar/requirements.txt in CI).
+    // Set JOBSPY_PYTHON env var if python3 is not on PATH.
+    // LinkedIn is listed last per IP-safety convention; never list it alone.
+    { name: 'Search — Finance Intern', careers_url: 'jobspy://search', provider: 'jobspy', enabled: true,
+      api: { sites: ['indeed', 'google', 'linkedin'], term: 'finance internship', location: 'United States', resultsWanted: 25, hoursOld: 168 } },
+    { name: 'Search — Consulting Intern', careers_url: 'jobspy://search', provider: 'jobspy', enabled: true,
+      api: { sites: ['indeed', 'google'], term: 'consulting internship', location: 'United States', resultsWanted: 25, hoursOld: 168 } },
+    { name: 'Search — Tech/Data Intern', careers_url: 'jobspy://search', provider: 'jobspy', enabled: true,
+      api: { sites: ['indeed', 'google', 'linkedin'], term: 'data analyst internship', location: 'United States', resultsWanted: 25, hoursOld: 168 } },
   ],
 };

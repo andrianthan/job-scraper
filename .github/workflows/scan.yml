@@ -29,6 +29,14 @@ jobs:
       - name: Ensure data directory exists
         run: mkdir -p data
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install sidecar dependencies
+        run: pip install -r sidecar/requirements.txt
+
       - name: Run scan
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
@@ -42,6 +50,8 @@ jobs:
           FIELD_WEBHOOK_FELLOWSHIPS: ${{ secrets.FIELD_WEBHOOK_FELLOWSHIPS }}
           OPENROUTER_JOB_SCRAPER: ${{ secrets.OPENROUTER_JOB_SCRAPER }}
           FIRECRAWL_API_KEY: ${{ secrets.FIRECRAWL_API_KEY }}
+          JOBSPY_PYTHON: python3
+          JOBSPY_PROXIES: ${{ secrets.JOBSPY_PROXIES }}
         run: node scan.mjs --notify
 
 # job-scraper internship bot — AKPSI
