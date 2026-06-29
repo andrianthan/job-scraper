@@ -86,6 +86,19 @@ function passesLocation(location, f) {
   return f.allow.some(k => loc.includes(lc(k)));
 }
 
+// Freshness gate — only notify NEWLY released postings. job.postedAt is the
+// original publish date (epoch ms); roles reposted to regain traction keep their
+// old date, so a max-age cutoff filters them out. Jobs with no postedAt are kept
+// (don't penalize missing data — e.g. Firecrawl-extracted listings have no date).
+// Tune with MAX_JOB_AGE_DAYS env (default 21; set 0 to disable).
+const MAX_JOB_AGE_DAYS = Number(process.env.MAX_JOB_AGE_DAYS ?? 21);
+function passesFreshness(job) {
+  if (!MAX_JOB_AGE_DAYS) return true;
+  if (!job.postedAt) return true;
+  const ageDays = (Date.now() - job.postedAt) / 86_400_000;
+  return ageDays <= MAX_JOB_AGE_DAYS;
+}
+
 // ── Main ──────────────────────────────────────────────────────────
 export async function main() {
   const providers = await loadProviders();
@@ -108,6 +121,7 @@ export async function main() {
       if (!job.url || !job.title) continue;
       if (!passesTitle(job.title, config.titleFilter)) continue;
       if (!passesLocation(job.location, config.locationFilter)) continue;
+      if (!passesFreshness(job)) continue; // skip stale/reposted-old listings
       if (hasSeen(job.url)) continue; // exact-URL dedup (DB)
       // fuzzy same-company repost dedup (reads from DB — persists across runs)
       const storedRoles = seenRoles(job.company);
