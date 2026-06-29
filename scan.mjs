@@ -137,7 +137,16 @@ export async function main() {
   recordRun({ scanned, parked, failed, newJobs: newJobs.length });
 
   // ── Report ──
+  // Per-source tally of NEW jobs (greenhouse/ashby/workday/simplify/firecrawl/jobspy)
+  // so each run shows which providers actually contributed.
+  const bySource = {};
+  for (const j of newJobs) bySource[j.source] = (bySource[j.source] || 0) + 1;
+  const breakdown = Object.entries(bySource)
+    .sort((a, b) => b[1] - a[1])
+    .map(([s, n]) => `${s} ${n}`)
+    .join(' · ');
   console.error(`\n📊 scanned ${scanned} · parked ${parked} · failed ${failed} · ${newJobs.length} new jobs`);
+  if (breakdown) console.error(`   by source: ${breakdown}`);
   for (const j of newJobs) {
     console.error(`  • ${j.company} — ${j.title}${j.location ? `  [${j.location}]` : ''}`);
     console.error(`    ${j.url}`);
