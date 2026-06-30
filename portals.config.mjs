@@ -37,12 +37,39 @@ export default {
     ],
   },
 
-  // -- Location filter (optional). Empty location always passes. --
+  // -- Location filter (NA-only). Empty location passes (don't penalize missing data). --
+  // Order in passesLocation(): block wins over allow (any non-NA country trumps US city).
+  // NA allow list expanded to US + Canada + Mexico cities commonly posted as US-remote.
   locationFilter: {
-    alwaysAllow: ['United States', 'New York', 'Remote'],
-    allow: ['United States', 'USA', 'US', 'Remote', 'New York', 'Chicago',
-            'San Francisco', 'Boston', 'Charlotte', 'Atlanta', 'Dallas', 'Los Angeles'],
-    block: ['India', 'United Kingdom', 'London', 'Singapore', 'Germany', 'Hong Kong'],
+    alwaysAllow: ['United States', 'USA', 'US', 'Canada', 'Mexico', 'Remote'],
+    allow: ['United States', 'USA', 'US', 'U.S.', 'Canada', 'CA', 'Mexico', 'MX', 'Remote',
+            // Major US hubs
+            'New York', 'NY', 'San Francisco', 'SF', 'Bay Area', 'Chicago', 'Boston',
+            'Charlotte', 'Atlanta', 'Dallas', 'Los Angeles', 'LA', 'Seattle', 'Austin',
+            'Miami', 'Denver', 'Washington DC', 'DC', 'Philadelphia', 'Houston',
+            'Minneapolis', 'Detroit', 'Phoenix', 'San Diego', 'Portland',
+            // Canadian provinces (London, ON vs London, UK — Ontario wins)
+            'Ontario', 'ON', 'Quebec', 'QC', 'British Columbia', 'BC', 'Alberta', 'AB',
+            'Manitoba', 'MB', 'Saskatchewan', 'SK', 'Nova Scotia', 'NS', 'Toronto',
+            'Vancouver', 'Montreal', 'Ottawa', 'Calgary', 'Edmonton'],
+    block: [
+      // Asia
+      'India', 'Singapore', 'Hong Kong', 'China', 'Japan', 'Korea', 'Taiwan',
+      'Philippines', 'Vietnam', 'Thailand', 'Malaysia', 'Indonesia', 'Pakistan',
+      'Bangladesh', 'Sri Lanka', 'Nepal',
+      // Europe (UK, EU, etc.)
+      'United Kingdom', 'UK', 'England', 'Scotland', 'Wales', 'Ireland',
+      'Germany', 'France', 'Spain', 'Italy', 'Netherlands', 'Belgium', 'Switzerland',
+      'Austria', 'Sweden', 'Norway', 'Denmark', 'Finland', 'Poland', 'Portugal',
+      'Greece', 'Czech', 'Romania', 'Hungary', 'Russia', 'Ukraine', 'Turkey',
+      // Middle East / Africa
+      'Israel', 'UAE', 'Dubai', 'Saudi Arabia', 'Qatar', 'Egypt', 'South Africa',
+      'Nigeria', 'Kenya', 'Morocco',
+      // Oceania
+      'Australia', 'Sydney', 'Melbourne', 'New Zealand', 'Auckland',
+      // Latin America (not Mexico)
+      'Brazil', 'Argentina', 'Chile', 'Colombia', 'Peru', 'Costa Rica',
+    ],
   },
 
   // -- Companies. STARTER set — verify slugs before trusting. --

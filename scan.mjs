@@ -81,10 +81,22 @@ function passesLocation(location, f) {
   if (!f) return true;
   const loc = lc(location);
   if (!loc) return true; // don't penalize missing data
-  if (f.alwaysAllow?.some(k => loc.includes(lc(k)))) return true;
+  // Block wins over everything — "Remote, India" must NOT pass even if "remote" is in alwaysAllow.
   if (f.block?.some(k => loc.includes(lc(k)))) return false;
+  // Word-boundary match for short tokens (US, UK, CA, NY, DC) — substring "us" matches "australia".
+  // For longer tokens (multi-char cities/countries) plain substring is fine.
+  const matchAny = (haystack, kws) => kws.some(k => {
+    const kk = lc(k);
+    if (kk.length <= 3) {
+      // word-boundary regex
+      const re = new RegExp(`(?<![a-z])${kk.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}(?![a-z])`, 'i');
+      return re.test(haystack);
+    }
+    return haystack.includes(kk);
+  });
+  if (f.alwaysAllow?.length && matchAny(loc, f.alwaysAllow)) return true;
   if (!f.allow?.length) return true;
-  return f.allow.some(k => loc.includes(lc(k)));
+  return matchAny(loc, f.allow);
 }
 
 // Freshness gate — only notify NEWLY released postings. job.postedAt is the

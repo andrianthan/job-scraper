@@ -6,8 +6,13 @@
 //
 // Auto-detected on raw.githubusercontent.com/SimplifyJobs/... URLs, or opt-in
 // via provider: 'simplify'. No API key needed.
+//
+// The feed is ~11MB on the dev branch (Summer2026-Internships). 10s default
+// HTTP timeout is too tight for the full file — request 180s. The freshness
+// filter downstream drops 99% of rows; the network cost is the bottleneck.
 
 const SIMPLIFY_HOST = 'raw.githubusercontent.com';
+const SIMPLIFY_TIMEOUT_MS = 180_000;
 
 /** @param {import('./_types.js').PortalEntry} entry */
 function isSimplify(entry) {
@@ -27,7 +32,7 @@ export default {
   },
 
   async fetch(entry, ctx) {
-    const json = /** @type {any} */ (await ctx.fetchJson(entry.careers_url, { redirect: 'error' }));
+    const json = /** @type {any} */ (await ctx.fetchJson(entry.careers_url, { redirect: 'error', timeoutMs: SIMPLIFY_TIMEOUT_MS }));
     const rows = Array.isArray(json) ? json : [];
     return rows
       // Only currently-open, publicly-visible postings.
