@@ -161,11 +161,16 @@ export async function notifyStatus({ scanned, parked, failed, newJobs, bySource 
   const now = Math.floor(Date.now() / 1000);
   const intervalHours = parseInt(process.env.SCAN_INTERVAL_HOURS || '4', 10);
   const nowDate = new Date();
-  const nextHourMark = Math.ceil((nowDate.getUTCHours() + 1) / intervalHours) * intervalHours;
+  const currentHour = nowDate.getUTCHours();
+  // Next multiple of intervalHours strictly greater than current hour.
+  // Example: hour=11, interval=4 → 12 (today). hour=14, interval=4 → 16 (today). hour=23, interval=4 → 24 (=0 next day).
+  const nextHourMark = Math.floor(currentHour / intervalHours) * intervalHours + intervalHours;
   const nextRun = new Date(nowDate);
   nextRun.setUTCMinutes(0, 0, 0);
   nextRun.setUTCHours(nextHourMark % 24);
   if (nextHourMark >= 24) nextRun.setUTCDate(nextRun.getUTCDate() + 1);
+  // Roll day forward if computed time lands in the past (safety net for DST or clock drift).
+  if (nextRun.getTime() <= nowDate.getTime()) nextRun.setUTCDate(nextRun.getUTCDate() + 1);
   const nextTs = Math.floor(nextRun.getTime() / 1000);
   const breakdown = Object.entries(bySource)
     .sort((a, b) => b[1] - a[1])
