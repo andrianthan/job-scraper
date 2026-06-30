@@ -224,8 +224,18 @@ export async function main() {
       console.error(`⚠️  ${unnotified.length} new jobs > cap ${CAP}: notifying the ${CAP} freshest, suppressing ${unnotified.length - CAP}`);
     }
     if (toNotify.length) {
-      await notify(toNotify);
+      const result = await notify(toNotify);
       markNotified(unnotified.map(j => j.url)); // mark all seen-as-notified, incl. suppressed overflow
+      // Surface channel failures via exit code (cron needs to know) WITHOUT
+      // throwing — DB writes and post-notify cleanup must still run below.
+      if (!result.ok) {
+        const fails = Object.entries(result.channels)
+          .filter(([, r]) => !r.ok)
+          .map(([k, r]) => `${k}: ${r.error}`)
+          .join('; ');
+        console.error(`⚠️  notify had failures: ${fails}`);
+        process.exitCode = 1;
+      }
     }
   }
 

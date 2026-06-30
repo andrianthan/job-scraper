@@ -59,7 +59,7 @@ export async function notifyDiscord(jobs) {
         embeds,
       }),
     });
-    if (!res.ok) console.error(`✗ Discord ${res.status}: ${await res.text().catch(() => '')}`);
+    if (!res.ok) throw new Error(`Discord ${res.status}: ${await res.text().catch(() => '')}`);
     await new Promise(r => setTimeout(r, 1000));
   }
   console.error(`📨 pushed ${jobs.length} job(s) to Discord`);
@@ -102,7 +102,7 @@ export async function notifyFieldChannels(jobs) {
           allowed_mentions: { parse: ['roles'] },
         }),
       });
-      if (!res.ok) console.error(`✗ Discord[${channel}] ${res.status}: ${await res.text().catch(() => '')}`);
+      if (!res.ok) throw new Error(`Discord[${channel}] ${res.status}: ${await res.text().catch(() => '')}`);
       await new Promise(r => setTimeout(r, 1000));
     }
     console.error(`📨 routed ${entries.length} job(s) to #${channel}`);
@@ -127,26 +127,16 @@ export async function notifyEmail(jobs) {
       .join('') +
     '</ul>';
 
-  let res;
-  try {
-    res = await _fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({ from, to, subject, html }),
-    });
-  } catch (err) {
-    console.error(`✗ Resend network error: ${err.message}`);
-    return;
-  }
-
-  if (!res.ok) {
-    console.error(`✗ Resend ${res.status}: ${await res.text().catch(() => '')}`);
-  } else {
-    console.error(`📧 email sent to ${to} (${jobs.length} job(s))`);
-  }
+  const res = await _fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'Authorization': `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify({ from, to, subject, html }),
+  });
+  if (!res.ok) throw new Error(`Resend ${res.status}: ${await res.text().catch(() => '')}`);
+  console.error(`📧 email sent to ${to} (${jobs.length} job(s))`);
 }
 
 // ── Status heartbeat ──────────────────────────────────────────────────────────
@@ -202,10 +192,13 @@ export async function notifyStatus({ scanned, parked, failed, newJobs, bySource 
 
 // ── Dispatcher ────────────────────────────────────────────────────────────────
 // One call per run. Fans out to every configured channel.
-// No channels configured → stdout fallback, exits 0, no throw.
-// Channel failure is logged but does not block the other channel.
+// Returns { ok, channels } so the caller can decide whether to set process.exitCode = 1.
+// - ok: true  → no channels configured OR all configured channels succeeded.
+// - ok: false → at least one configured channel threw; details in `channels`.
+// Non-configured channels are OMITTED from `channels` entirely.
+// Channel failures are isolated: one channel throwing does not block the others.
 export async function notify(jobs) {
-  if (!jobs.length) return;
+  if (!jobs.length) return { ok: true, channels: {} };
 
   const hasDiscord = !!(process.env.DISCORD_WEBHOOK_URL || process.env.DISCORD_WEBHOOK);
   const hasEmail   = !!(process.env.NOTIFY_EMAIL && process.env.RESEND_API_KEY);
@@ -218,18 +211,38 @@ export async function notify(jobs) {
       console.log(`• ${j.company} — ${j.title}${j.location ? `  [${j.location}]` : ''}`);
       console.log(`  ${j.url}`);
     }
-    return;
+    return { ok: true, channels: {} };
   }
 
-  const results = await Promise.allSettled([
-    hasDiscord ? notifyDiscord(jobs)       : Promise.resolve(),
-    hasEmail   ? notifyEmail(jobs)         : Promise.resolve(),
-    hasField   ? notifyFieldChannels(jobs) : Promise.resolve(),
-  ]);
-
-  for (const r of results) {
-    if (r.status === 'rejected') {
-      console.error('✗ channel error:', r.reason?.message ?? String(r.reason));
+  // Wrap each channel call in an IIFE so its rejection is caught at the
+  // source (Node 15+ throws on unhandled rejections — awaiting later in a
+  // try/catch is too late because the rejection fires before the loop reaches
+  // that channel).
+  async function run(name, fn) {
+    try {
+      await fn();
+      return [name, { ok: true }];
+    } catch (e) {
+      console.error(`✗ ${name}: ${e.message}`);
+      return [name, { ok: false, error: e.message }];
     }
   }
+
+  const settled = await Promise.allSettled([
+    hasDiscord ? run('discord', () => notifyDiscord(jobs)) : Promise.resolve(null),
+    hasEmail   ? run('email',   () => notifyEmail(jobs))   : Promise.resolve(null),
+    hasField   ? run('field',   () => notifyFieldChannels(jobs)) : Promise.resolve(null),
+  ]);
+
+  const channels = {};
+  for (const r of settled) {
+    if (r.status === 'fulfilled' && r.value) {
+      const [name, result] = r.value;
+      channels[name] = result;
+    }
+    // run() never rejects (it catches internally) — but be defensive.
+  }
+
+  const ok = Object.values(channels).every(r => r.ok);
+  return { ok, channels };
 }

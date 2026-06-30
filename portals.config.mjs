@@ -314,6 +314,14 @@ export default {
     { name: 'Anheuser-Busch InBev', careers_url: 'https://job-boards.greenhouse.io/abinbev',         provider: 'greenhouse', query: 'intern' },
     { name: 'Clorox',               careers_url: 'https://clorox.wd1.myworkdayjobs.com/Clorox',         provider: 'workday',   query: 'intern' },
 
+    // ── Insurance (Workday; query:'intern' keeps tenants w/ 100s of FT roles bounded) ──
+    { name: 'Travelers',  careers_url: 'https://travelers.wd5.myworkdayjobs.com/External',          provider: 'workday', query: 'intern' },
+    { name: 'Allstate',   careers_url: 'https://allstate.wd5.myworkdayjobs.com/Allstate_Careers',   provider: 'workday', query: 'intern' },
+
+    // ── Energy / oil & gas (Workday; ConocoPhillips is wd1 not wd5) ──
+    { name: 'Baker Hughes',     careers_url: 'https://bakerhughes.wd5.myworkdayjobs.com/BakerHughes', provider: 'workday', query: 'intern' },
+    { name: 'ConocoPhillips',   careers_url: 'https://conocophillips.wd1.myworkdayjobs.com/External', provider: 'workday', query: 'intern' },
+
     // ── JobSpy search sources — keyword-based broad sweep via python-jobspy sidecar. ──
     // Requires: pip install python-jobspy  (or sidecar/requirements.txt in CI).
     // Set JOBSPY_PYTHON env var if python3 is not on PATH.

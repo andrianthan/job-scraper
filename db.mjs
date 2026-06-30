@@ -11,6 +11,11 @@ import { canonKey } from './normalize.mjs';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const DB_PATH = process.env.DB_PATH || join(__dirname, 'data', 'jobs.db');
 
+// Fuzzy-match dedup window. Capping at N days prevents O(N^2) cost growth on
+// large companies (Walmart 2k+ titles, PwC 4k+) and avoids false-positive
+// dedup where stale roles from months ago fuzzy-match fresh repostings.
+const FUZZY_DEDUP_DAYS = Number(process.env.FUZZY_DEDUP_DAYS ?? 90);
+
 let _db = null;
 
 /**
@@ -107,14 +112,18 @@ export function markSeen(job) {
 }
 
 /**
- * Returns stored titles for a company, used by roleFuzzyMatch in scan.mjs.
- * Excludes migration-era rows that have no title (empty string).
+ * Returns stored titles for a company (recent only), used by roleFuzzyMatch in scan.mjs.
+ * Windowed by FUZZY_DEDUP_DAYS to bound O(N^2) cost on large feeds and avoid
+ * stale-repost false positives — see the FUZZY_DEDUP_DAYS comment above.
+ * Excludes rows with no title.
  * @param {string} company
  * @returns {{ title: string }[]}
  */
 export function seenRoles(company) {
   const db = openDb();
-  return db.prepare("SELECT title FROM jobs WHERE company = ? AND title != ''").all(company);
+  return db.prepare(
+    "SELECT title FROM jobs WHERE company = ? AND title != '' AND date(first_seen) >= date('now', ?)"
+  ).all(company, `-${FUZZY_DEDUP_DAYS} days`);
 }
 
 /**
