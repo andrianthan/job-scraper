@@ -70,6 +70,7 @@ export default {
         redirect: 'error',
         body,
         headers: { 'content-type': 'application/json', accept: 'application/json' },
+        timeoutMs: 30_000,
       });
       const postings = Array.isArray(json?.jobPostings) ? json.jobPostings : [];
       for (const j of postings) {

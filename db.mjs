@@ -40,6 +40,14 @@ export function openDb() {
       boards_failed  INTEGER NOT NULL DEFAULT 0,
       new_jobs       INTEGER NOT NULL DEFAULT 0
     );
+    CREATE TABLE IF NOT EXISTS feed_cache (
+      url             TEXT PRIMARY KEY,
+      etag            TEXT,
+      last_modified   TEXT,
+      picked_branch   TEXT,
+      last_status     INTEGER,
+      last_checked_at TEXT NOT NULL
+    );
   `);
   // Idempotent migration: add notified_at column if not already present.
   // SQLite throws if the column already exists — catch and ignore.
@@ -154,4 +162,59 @@ export function getUnnotified(jobs) {
     const row = db.prepare('SELECT notified_at FROM jobs WHERE url = ?').get(j.url);
     return !row || row.notified_at === null;
   });
+}
+
+/**
+ * @param {string} url
+ * @returns {{ etag: string|null, last_modified: string|null, picked_branch: string|null } | null}
+ */
+export function getFeedCache(url) {
+  const db = openDb();
+  const row = db.prepare('SELECT etag, last_modified, picked_branch FROM feed_cache WHERE url = ?').get(url);
+  if (!row) return null;
+  return {
+    etag: row.etag,
+    last_modified: row.last_modified,
+    picked_branch: row.picked_branch,
+  };
+}
+
+/**
+ * @param {string} url
+ * @param {{ etag?: string|null, last_modified?: string|null, picked_branch?: string|null, last_status?: number|null }} fields
+ */
+export function setFeedCache(url, fields = {}) {
+  const db = openDb();
+  const now = new Date().toISOString();
+  const allowed = ['etag', 'last_modified', 'picked_branch', 'last_status'];
+  const columns = ['url', 'last_checked_at'];
+  const values = [url, now];
+  const updates = ['last_checked_at = excluded.last_checked_at'];
+
+  for (const key of allowed) {
+    if (!Object.hasOwn(fields, key) || fields[key] == null) continue;
+    columns.push(key);
+    values.push(fields[key]);
+    updates.push(`${key} = excluded.${key}`);
+  }
+
+  const placeholders = columns.map(() => '?').join(', ');
+  db.prepare(
+    `INSERT INTO feed_cache (${columns.join(', ')}) VALUES (${placeholders})
+     ON CONFLICT(url) DO UPDATE SET ${updates.join(', ')}`
+  ).run(...values);
+}
+
+/**
+ * @param {string} url
+ * @param {number} status
+ */
+export function setFeedCacheStatus(url, status) {
+  const db = openDb();
+  db.prepare(
+    `INSERT INTO feed_cache (url, last_status, last_checked_at) VALUES (?, ?, ?)
+     ON CONFLICT(url) DO UPDATE SET
+       last_status = excluded.last_status,
+       last_checked_at = excluded.last_checked_at`
+  ).run(url, status, new Date().toISOString());
 }

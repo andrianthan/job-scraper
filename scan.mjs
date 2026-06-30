@@ -132,22 +132,42 @@ export async function main() {
       .filter(Boolean)
   );
 
-  for (const entry of config.trackedCompanies) {
-    if (entry.enabled === false) { parked++; continue; }
-    const provider = resolveProvider(entry, providers);
-    if (!provider) { console.error(`⏭  no provider for ${entry.name} (${entry.careers_url})`); failed++; continue; }
+  const CONCURRENCY = Math.max(1, Number(process.env.SCAN_CONCURRENCY ?? 8));
+  console.error(`📡 concurrency: ${CONCURRENCY}`);
+  // Bounded-concurrency fan-out so 100+ boards don't scan serially. Workers
+  // share a FIFO queue; each one drains entries until empty. Results are
+  // collected (provider.id travels with each batch) so per-job dedup can
+  // still run sequentially after all fetches complete.
+  const queue = config.trackedCompanies.slice(); // shallow copy — never mutate config
+  const fetchResults = []; // { ok, name, provider?, jobs?, error? }
+  async function worker() {
+    while (queue.length) {
+      const entry = queue.shift();
+      if (entry.enabled === false) { fetchResults.push({ ok: true, parked: true, name: entry.name }); continue; }
+      const provider = resolveProvider(entry, providers);
+      if (!provider) { console.error(`⏭  no provider for ${entry.name} (${entry.careers_url})`); fetchResults.push({ ok: false, name: entry.name }); continue; }
+      try {
+        const jobs = await provider.fetch(entry, ctx);
+        fetchResults.push({ ok: true, name: entry.name, provider: provider.id, jobs });
+      } catch (e) {
+        console.error(`✗  ${entry.name} [${provider.id}]: ${e.message}`);
+        fetchResults.push({ ok: false, name: entry.name, provider: provider.id, error: e.message });
+      }
+    }
+  }
+  await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 
-    let jobs;
-    try { jobs = await provider.fetch(entry, ctx); }
-    catch (e) { console.error(`✗  ${entry.name} [${provider.id}]: ${e.message}`); failed++; continue; }
-
+  for (const result of fetchResults) {
+    if (result.parked) { parked++; continue; }
+    if (!result.ok) { failed++; continue; }
     scanned++;
-    for (const job of jobs) {
+    const providerId = result.provider;
+    for (const job of result.jobs) {
       if (!job.url || !job.title) continue;
-      job.source = provider.id; // tag origin (greenhouse/ashby/workday/simplify/firecrawl/jobspy) for the notification footer
+      job.source = providerId; // tag origin (greenhouse/ashby/workday/simplify/firecrawl/jobspy) for the notification footer
       // Layer 1 — JobSpy company-exclusion: skip board-search hits for any firm
       // already covered by a direct provider (precise feed wins, no overlap).
-      if (provider.id === 'jobspy' && directCompanies.has(normCompany(job.company))) continue;
+      if (providerId === 'jobspy' && directCompanies.has(normCompany(job.company))) continue;
       if (!passesTitle(job.title, config.titleFilter)) continue;
       if (!passesLocation(job.location, config.locationFilter)) continue;
       if (!passesFreshness(job)) continue; // skip stale/reposted-old listings
@@ -165,6 +185,10 @@ export async function main() {
       markSeen(job);
     }
   }
+
+  // Parallel scan makes arrival order non-deterministic. Sort by freshest first
+  // then by company for stable notification/listing order.
+  newJobs.sort((a, b) => (b.postedAt || 0) - (a.postedAt || 0) || String(a.company).localeCompare(String(b.company)));
 
   recordRun({ scanned, parked, failed, newJobs: newJobs.length });
 

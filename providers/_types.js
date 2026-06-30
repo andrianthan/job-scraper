@@ -77,6 +77,7 @@
  * @property {('http')} transport
  * @property {(url: string, opts?: FetchOptions) => Promise<string>}  fetchText
  * @property {(url: string, opts?: FetchOptions) => Promise<unknown>} fetchJson
+ * @property {(url: string, opts?: FetchOptions, cacheKey?: string) => Promise<{status: number, json: () => Promise<any>, text: () => Promise<string>, headers: Headers}>} fetchWithCache
  */
 
 /**
