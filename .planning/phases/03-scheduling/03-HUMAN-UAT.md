@@ -1,20 +1,21 @@
 ---
-status: resolved
+status: complete
 phase: 03-scheduling
 source: [03-VERIFICATION.md]
 started: 2026-06-28
-updated: 2026-06-28
+updated: 2026-06-30
 ---
 
 ## Current Test
 
-[awaiting human testing — requires pushing repo to GitHub + adding DISCORD_WEBHOOK_URL secret]
+[testing complete]
 
 ## Tests
 
 ### 1. Live scheduled run — end-to-end incremental behavior
 expected: First scheduled/dispatched run posts new jobs to Discord; an immediate second run posts zero (DB cache dedup works across CI runs).
-result: PASSED (2026-06-28) — run 28338708835: scanned 16, 7 new, pushed 7 to Discord. run 28338759680: cache hit restored jobs.db, scanned 16, 0 new, no push. Dedup across CI runs confirmed.
+result: pass
+notes: (2026-06-28) — run 28338708835: scanned 16, 7 new, pushed 7 to Discord. run 28338759680: cache hit restored jobs.db, scanned 16, 0 new, no push. Dedup across CI runs confirmed.
 
 steps:
 1. Push repo to GitHub (workflow .github/workflows/scan.yml already committed)
@@ -25,10 +26,12 @@ steps:
 ## Summary
 
 total: 1
-passed: 0
+passed: 1
 issues: 0
-pending: 1
+pending: 0
 skipped: 0
 blocked: 0
 
 ## Gaps
+
+[none]
