@@ -97,15 +97,15 @@ Stack: Node 22+, ESM, **zero npm deps**. SQLite via `node:sqlite` built-in.
 - ✓ Status heartbeat (#bot-status hourly) + next-run timestamp — post-v1.0
 - ✓ Freshness gate (7d window, with 30d override for known-stale providers) —
   post-v1.0
+- ✓ GH-flavored markdown CSV writer (8-column header, append-only, escape
+  rules for pipe/newline/backtick) — Phase 6 (CSV-02, CSV-06, CSV-09)
 
 ### Active (v1.1)
 
 - [ ] **CSV-01**: Operator can configure a GitHub-hosted CSV as the `#job-board` notification target (separate `jobs-data` repo, raw URL pinned)
-- [ ] **CSV-02**: Each scan appends new rows to the CSV in GH-flavored markdown table format (Date Added, Company, Role, Location, URL, Source, Age, Application)
 - [ ] **CSV-03**: CSV file is auto-committed by GH Actions bot on each scan run (writes to disk + commits + pushes via configured GH token)
 - [ ] **CSV-04**: `#job-board` channel posts ONE message with the live raw URL; message is never re-sent — only the underlying file changes
 - [ ] **CSV-05**: Per-company group embeds in `#job-board` are removed (CSV replaces them); field channels keep embeds
-- [ ] **CSV-06**: CSV accumulates across runs (append-only, never truncated); old rows remain for archive/search
 - [ ] **CSV-07**: Cap=40 / `MAX_NOTIFY_PER_COMPANY` / company-grouping apply to CSV row count and email digest, not to field-channel embeds
 
 ### Out of Scope
@@ -164,4 +164,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last reconciled: 2026-07-01 (v1.1 milestone started — CSV-as-notification)*
+*Last reconciled: 2026-07-02 (Phase 6 complete — CSV writer + tests, 91/91 green)*
