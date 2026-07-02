@@ -11,13 +11,17 @@ on:
         default: false
 
 concurrency:
-  group: job-scan
+  group: job-scan-csv
   cancel-in-progress: false
 
 jobs:
   scan:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      JOBS_DATA_REPO: andrianthan/jobs-data
 
     steps:
       - name: Checkout
@@ -72,4 +76,30 @@ jobs:
           SCAN_INTERVAL_HOURS: '4'
         run: node scan.mjs --notify
 
+      - name: Capture scan output as JSON
+        if: always()
+        run: node scan.mjs --json > /tmp/scan-jobs.json 2>/dev/null || echo "[]" > /tmp/scan-jobs.json
+        # The `|| echo "[]"` handles scan failures (network, etc.) so the CSV
+        # push step still runs and the workflow doesn't dead-letter. The CSV
+        # push with empty jobs list will skip on no-diff.
+
+      - name: Checkout jobs-data repo
+        if: always()
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ env.JOBS_DATA_REPO }}
+          path: jobs-data
+          token: ${{ secrets.GH_TOKEN }}
+          persist-credentials: false
+
+      - name: Run CSV push helper
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          JOBS_DATA_REPO: ${{ env.JOBS_DATA_REPO }}
+          CSV_PATH: ${{ github.workspace }}/jobs-data/jobs.csv
+          GITHUB_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node scripts/push-csv.mjs /tmp/scan-jobs.json
+
 # job-scraper internship bot — AKPSI
+# Phase 7: appends CSV to andrianthan/jobs-data on each scan run
