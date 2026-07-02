@@ -113,7 +113,7 @@ Plans:
 **Plans**: 1 plan
 
 Plans:
-- [ ] 06-01-PLAN.md — csv-writer.mjs (appendRows + parseRows) + test/csv-writer.test.mjs (7 describe blocks)
+- [x] 06-01-PLAN.md — csv-writer.mjs (appendRows + parseRows) + test/csv-writer.test.mjs (7 describe blocks)
 
 ### Phase 7: GH Actions Bot Integration
 **Goal**: Each scan run commits and pushes the CSV to `andrianthan/jobs-data` via GH Actions bot
@@ -160,7 +160,7 @@ Phases execute in numeric order: 6 → 7 → 8 → 9
 | 3. Scheduling | 1/1 | Complete    | 2026-06-28 |
 | 4. Notifications | 1/1 | Complete    | 2026-06-28 |
 | 5. Config, Docs & Test | 2/2 | Complete    | 2026-06-28 |
-| 6. CSV Writer & Format | 0/? | Not started | - |
+| 6. CSV Writer & Format | 1/1 | Complete    | 2026-07-02 |
 | 7. GH Actions Bot Integration | 0/? | Not started | - |
 | 8. #job-board Channel Switchover | 0/? | Not started | - |
 | 9. CSV Channel Documentation | 0/? | Not started | - |
