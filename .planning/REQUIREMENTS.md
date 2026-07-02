@@ -77,3 +77,31 @@ REQ-IDs map to exactly one phase (see Traceability, filled by roadmap).
 | DOCS-01 | Phase 5 | Complete |
 | DOCS-02 | Phase 5 | Complete |
 | TEST-01 | Phase 5 | Complete |
+
+## v1.1 Requirements
+
+### CSV-as-Notification
+
+- [ ] **CSV-01**: Operator can configure a GitHub-hosted CSV as the `#job-board` notification target — separate `andrianthan/jobs-data` repo, raw URL pinned in channel
+- [x] **CSV-02**: Each scan appends new rows to the CSV in GH-flavored markdown table format with columns: Date Added, Company, Role, Location, URL, Source, Age, Application
+- [x] **CSV-03**: CSV file is auto-committed by GH Actions bot on each scan run (writes to disk + commits + pushes via configured GH_TOKEN)
+- [ ] **CSV-04**: `#job-board` channel posts ONE message with the live raw URL; message is never re-sent — only the underlying file changes
+- [ ] **CSV-05**: Per-company group embeds in `#job-board` are removed (CSV replaces them); field channels keep embeds
+- [x] **CSV-06**: CSV accumulates across runs (append-only, never truncated); old rows remain for archive/search
+- [ ] **CSV-07**: Cap=40 / `MAX_NOTIFY_PER_COMPANY` / company-grouping apply to CSV row count and email digest, not to field-channel embeds
+- [ ] **CSV-08**: README documents the CSV channel setup (create jobs-data repo, configure GH_TOKEN, pin message in #job-board)
+- [x] **CSV-09**: E2E test covers CSV append behavior (rows added correctly, format stable, no duplicates within CSV)
+
+## Traceability (v1.1)
+
+| REQ-ID | Phase | Status |
+|--------|-------|--------|
+| CSV-01 | Phase 8 | Pending |
+| CSV-02 | Phase 6 | Complete |
+| CSV-03 | Phase 7 | Complete |
+| CSV-04 | Phase 8 | Pending |
+| CSV-05 | Phase 8 | Pending |
+| CSV-06 | Phase 6 | Complete |
+| CSV-07 | Phase 8 | Pending |
+| CSV-08 | Phase 9 | Pending |
+| CSV-09 | Phase 6 | Complete |
