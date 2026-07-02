@@ -23,7 +23,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 4: Notifications** - Digest batching, email channel, graceful degradation, sent-log dedup guard (completed 2026-06-28)
 - [x] **Phase 5: Config, Docs & Test** - Operator-ready README, config examples, and a passing end-to-end test suite (completed 2026-06-28)
 - [ ] **Phase 6: CSV Writer & Format** - Append-only markdown-table CSV writer with GH-flavored column schema and unit tests
-- [ ] **Phase 7: GH Actions Bot Integration** - Auto-commit/push the CSV to `andrianthan/jobs-data` on each scan via configured GH_TOKEN
+- [x] **Phase 7: GH Actions Bot Integration** - Auto-commit/push the CSV to `andrianthan/jobs-data` on each scan via configured GH_TOKEN (completed 2026-07-02)
 - [ ] **Phase 8: #job-board Channel Switchover** - Replace per-company embeds with one pinned raw-URL message; field channels untouched
 - [ ] **Phase 9: CSV Channel Documentation** - README section covering jobs-data repo creation, GH_TOKEN config, and pinned-message setup
 
@@ -161,6 +161,6 @@ Phases execute in numeric order: 6 → 7 → 8 → 9
 | 4. Notifications | 1/1 | Complete    | 2026-06-28 |
 | 5. Config, Docs & Test | 2/2 | Complete    | 2026-06-28 |
 | 6. CSV Writer & Format | 1/1 | Complete    | 2026-07-02 |
-| 7. GH Actions Bot Integration | 0/? | Not started | - |
+| 7. GH Actions Bot Integration | 0/? | Complete    | 2026-07-02 |
 | 8. #job-board Channel Switchover | 0/? | Not started | - |
 | 9. CSV Channel Documentation | 0/? | Not started | - |
