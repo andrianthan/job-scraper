@@ -1,10 +1,10 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0 + hardening
-milestone_name: milestone
-status: verifying
-stopped_at: audit-notify-ttl-sources branch merged to master (060b352)
-last_updated: "2026-07-01T21:25:00.000Z"
+milestone: v1.1
+milestone_name: CSV-as-Notification
+status: defining_requirements
+stopped_at: Milestone v1.1 started — CSV-as-Notification scope locked
+last_updated: "2026-07-01T21:40:00.000Z"
 last_activity: 2026-07-01
 progress:
   total_phases: 5
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (reconciled 2026-07-01)
 
 **Core value:** New, relevant internship postings reach the user reliably and without duplicates
-**Current focus:** Post-v1.0 hardening complete — ready for v1.1 milestone or further ad-hoc work
+**Current focus:** v1.1 CSV-as-Notification — replace #job-board embeds with auto-updating GH-hosted CSV
 
 ## Current Position
 
-Phase: 5 (all complete)
-Plan: All complete
-Status: v1.0 milestone verified + post-v1.0 hardening shipped
+Phase: 6 (next)
+Plan: Not started
+Status: Defining requirements
 Last activity: 2026-07-01
 
-Progress: [██████████] 100%
+Progress: [░░░░░░░░░░] 0% (v1.1 not started)
 
 ## Performance Metrics
 
@@ -95,6 +95,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-01T21:25:00.000Z
-Stopped at: Reconciled STATE.md + PROJECT.md to reflect post-v1.0 reality. audit-notify-ttl-sources branch merged to master (060b352), pushed to origin. Live scan verified: 188 jobs → 25 company-grouped embeds → 3 Discord POSTs.
+Last session: 2026-07-01T21:40:00.000Z
+Stopped at: v1.1 CSV-as-Notification milestone started. Scope locked: GH-flavored markdown CSV in separate `andrianthan/jobs-data` repo, auto-committed by GH Actions bot, ONE pinned message in #job-board with live raw URL, embeds killed in #job-board (field channels keep embeds). PROJECT.md + STATE.md updated, REQUIREMENTS.md next.
 Resume file: None

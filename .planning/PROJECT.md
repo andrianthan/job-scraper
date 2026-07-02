@@ -98,9 +98,15 @@ Stack: Node 22+, ESM, **zero npm deps**. SQLite via `node:sqlite` built-in.
 - ✓ Freshness gate (7d window, with 30d override for known-stale providers) —
   post-v1.0
 
-### Active
+### Active (v1.1)
 
-None — all v1.0 requirements validated. Post-v1.0 hardening complete.
+- [ ] **CSV-01**: Operator can configure a GitHub-hosted CSV as the `#job-board` notification target (separate `jobs-data` repo, raw URL pinned)
+- [ ] **CSV-02**: Each scan appends new rows to the CSV in GH-flavored markdown table format (Date Added, Company, Role, Location, URL, Source, Age, Application)
+- [ ] **CSV-03**: CSV file is auto-committed by GH Actions bot on each scan run (writes to disk + commits + pushes via configured GH token)
+- [ ] **CSV-04**: `#job-board` channel posts ONE message with the live raw URL; message is never re-sent — only the underlying file changes
+- [ ] **CSV-05**: Per-company group embeds in `#job-board` are removed (CSV replaces them); field channels keep embeds
+- [ ] **CSV-06**: CSV accumulates across runs (append-only, never truncated); old rows remain for archive/search
+- [ ] **CSV-07**: Cap=40 / `MAX_NOTIFY_PER_COMPANY` / company-grouping apply to CSV row count and email digest, not to field-channel embeds
 
 ### Out of Scope
 
@@ -127,6 +133,18 @@ None — all v1.0 requirements validated. Post-v1.0 hardening complete.
 | US-only location filter (post-v1.0) | Canada/Mexico listings frequently leaked into "US-remote" posts | ✓ Validated |
 | Drain-backlog flag (post-v1.0) | After big source change (intern-list rewrite), suppress inevitable flood | ✓ Validated |
 
+## Current Milestone: v1.1 CSV-as-Notification
+
+**Goal:** Replace per-company Discord embeds in `#job-board` with a single, auto-updating CSV hosted in a separate repo; pin one message with the live raw URL.
+
+**Target features:**
+
+- CSV-style table (GH-flavored markdown) accumulating all new jobs: Date Added, Company, Role, Location, URL, Source, Age (posted vs now), Application (link/redirect hint)
+- File lives at `andrianthan/jobs-data` repo, auto-committed by GH Actions bot on each scan
+- `#job-board` posts ONE pinned message with the live raw URL — never re-sent, just updated in place
+- Field channels (`#finance-pings`, etc.) keep per-company embeds for role-pinged realtime visibility
+- Existing cap=40 / MAX_NOTIFY_PER_COMPANY / company-grouping logic moves to CSV + email only
+
 ## Evolution
 
 This document evolves at phase transitions and milestone boundaries.
@@ -146,4 +164,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last reconciled: 2026-07-01 (post-v1.0 + post-hardening)*
+*Last reconciled: 2026-07-01 (v1.1 milestone started — CSV-as-notification)*
