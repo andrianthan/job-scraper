@@ -37,22 +37,35 @@ export default {
     ],
   },
 
-  // -- Location filter (NA-only). Empty location passes (don't penalize missing data). --
-  // Order in passesLocation(): block wins over allow (any non-NA country trumps US city).
-  // NA allow list expanded to US + Canada + Mexico cities commonly posted as US-remote.
+  // -- Location filter (US-only). Empty location passes (don't penalize missing data). --
+  // Order in passesLocation(): block wins over allow.
   locationFilter: {
-    alwaysAllow: ['United States', 'USA', 'US', 'Canada', 'Mexico', 'Remote'],
-    allow: ['United States', 'USA', 'US', 'U.S.', 'Canada', 'CA', 'Mexico', 'MX', 'Remote',
+    alwaysAllow: ['United States', 'USA', 'US', 'Remote'],
+    allow: ['United States', 'USA', 'US', 'U.S.', 'Remote',
             // Major US hubs
             'New York', 'NY', 'San Francisco', 'SF', 'Bay Area', 'Chicago', 'Boston',
             'Charlotte', 'Atlanta', 'Dallas', 'Los Angeles', 'LA', 'Seattle', 'Austin',
             'Miami', 'Denver', 'Washington DC', 'DC', 'Philadelphia', 'Houston',
             'Minneapolis', 'Detroit', 'Phoenix', 'San Diego', 'Portland',
-            // Canadian provinces (London, ON vs London, UK — Ontario wins)
-            'Ontario', 'ON', 'Quebec', 'QC', 'British Columbia', 'BC', 'Alberta', 'AB',
-            'Manitoba', 'MB', 'Saskatchewan', 'SK', 'Nova Scotia', 'NS', 'Toronto',
-            'Vancouver', 'Montreal', 'Ottawa', 'Calgary', 'Edmonton'],
+            // Other common US cities (incl. Bay Area, SoCal, PNW, etc.)
+            'San Jose', 'Sunnyvale', 'Santa Clara', 'Mountain View', 'Palo Alto',
+            'Cupertino', 'Menlo Park', 'Oakland', 'Berkeley', 'Fremont', 'Milpitas',
+            'Santa Cruz', 'Santa Monica', 'Pasadena', 'Long Beach', 'Irvine',
+            'Newport Beach', 'Huntington Beach', 'Westminster', 'Beverly Hills',
+            'Redmond', 'Bellevue', 'Kirkland', 'Bothell',
+            // US state names + abbreviations (CA, NY, TX, WA, MA, IL, GA, NC, CO, FL, PA, MN, MI, AZ, OR, VA, OH, NJ, MD, etc.)
+            'California', 'CA', 'Texas', 'TX', 'Washington', 'WA', 'Massachusetts', 'MA',
+            'Illinois', 'IL', 'Georgia', 'GA', 'North Carolina', 'NC', 'Colorado', 'CO',
+            'Florida', 'FL', 'Pennsylvania', 'PA', 'Minnesota', 'MN', 'Michigan', 'MI',
+            'Arizona', 'AZ', 'Oregon', 'OR', 'Virginia', 'VA', 'Ohio', 'OH', 'New Jersey', 'NJ',
+            'Maryland', 'MD', 'Tennessee', 'TN', 'Indiana', 'IN', 'Missouri', 'MO',
+            'Wisconsin', 'WI', 'Connecticut', 'CT', 'Utah', 'UT'],
     block: [
+      // Canada (all)
+      'Canada', 'Toronto', 'Vancouver', 'Montreal', 'Ottawa', 'Calgary', 'Edmonton',
+      'Ontario', 'Quebec', 'British Columbia', 'Alberta', 'Manitoba', 'Saskatchewan', 'Nova Scotia',
+      // Mexico (all)
+      'Mexico', 'Mexico City', 'Guadalajara', 'Monterrey',
       // Asia
       'India', 'Singapore', 'Hong Kong', 'China', 'Japan', 'Korea', 'Taiwan',
       'Philippines', 'Vietnam', 'Thailand', 'Malaysia', 'Indonesia', 'Pakistan',
@@ -67,7 +80,7 @@ export default {
       'Nigeria', 'Kenya', 'Morocco',
       // Oceania
       'Australia', 'Sydney', 'Melbourne', 'New Zealand', 'Auckland',
-      // Latin America (not Mexico)
+      // Latin America
       'Brazil', 'Argentina', 'Chile', 'Colombia', 'Peru', 'Costa Rica',
     ],
   },
@@ -79,7 +92,7 @@ export default {
     // ── Community aggregate feed (SimplifyJobs ~15k listings, structured + dated) ──
     // The open-source list aggregators like intern-list.com pull from. Auto-detected
     // by providers/simplify.mjs. Freshness filter + dedup keep it to new postings.
-    { name: 'SimplifyJobs', careers_url: 'https://raw.githubusercontent.com/SimplifyJobs/Summer2026-Internships/dev/.github/scripts/listings.json' },
+    { name: 'SimplifyJobs', careers_url: 'https://raw.githubusercontent.com/SimplifyJobs/Summer2026-Internships/dev/.github/scripts/listings.json', cooldown_hours: 0 },
 
     // ── Fintech (mostly Greenhouse/Ashby, hire business + finance interns) ──
     { name: 'Ramp',       careers_url: 'https://jobs.ashbyhq.com/ramp' },
@@ -322,15 +335,22 @@ export default {
     { name: 'Baker Hughes',     careers_url: 'https://bakerhughes.wd5.myworkdayjobs.com/BakerHughes', provider: 'workday', query: 'intern' },
     { name: 'ConocoPhillips',   careers_url: 'https://conocophillips.wd1.myworkdayjobs.com/External', provider: 'workday', query: 'intern' },
 
+    // ── Community aggregator (intern-list.com ~1500 jobs across SWE/DA/Mkt/Acct/PM/DataSci) ──
+    // Sitemap-driven: providers/intern-list.mjs reads /sitemap.xml, parses JSON-LD from each
+    // detail page, and emits Job objects. Apply URLs are jobright.ai redirects (preserved as
+    // fallbackUrl so notify.mjs can route users through the third-party apply flow). High
+    // overlap with Greenhouse/Lever/Simplify expected; canonical dedup catches duplicates.
+    { name: 'intern-list.com', careers_url: 'https://www.intern-list.com', provider: 'intern-list', cooldown_hours: 2 },
+
     // ── JobSpy search sources — keyword-based broad sweep via python-jobspy sidecar. ──
     // Requires: pip install python-jobspy  (or sidecar/requirements.txt in CI).
     // Set JOBSPY_PYTHON env var if python3 is not on PATH.
     // LinkedIn is listed last per IP-safety convention; never list it alone.
-    { name: 'Search — Finance Intern', careers_url: 'jobspy://search', provider: 'jobspy', enabled: true,
+    { name: 'Search — Finance Intern', careers_url: 'jobspy://search', provider: 'jobspy', enabled: true, cooldown_hours: 0,
       api: { sites: ['indeed', 'google', 'linkedin'], term: 'finance internship', location: 'United States', resultsWanted: 25, hoursOld: 168 } },
-    { name: 'Search — Consulting Intern', careers_url: 'jobspy://search', provider: 'jobspy', enabled: true,
+    { name: 'Search — Consulting Intern', careers_url: 'jobspy://search', provider: 'jobspy', enabled: true, cooldown_hours: 0,
       api: { sites: ['indeed', 'google'], term: 'consulting internship', location: 'United States', resultsWanted: 25, hoursOld: 168 } },
-    { name: 'Search — Tech/Data Intern', careers_url: 'jobspy://search', provider: 'jobspy', enabled: true,
+    { name: 'Search — Tech/Data Intern', careers_url: 'jobspy://search', provider: 'jobspy', enabled: true, cooldown_hours: 0,
       api: { sites: ['indeed', 'google', 'linkedin'], term: 'data analyst internship', location: 'United States', resultsWanted: 25, hoursOld: 168 } },
   ],
 };

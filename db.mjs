@@ -54,6 +54,9 @@ export function openDb() {
       last_checked_at TEXT NOT NULL
     );
   `);
+  // Idempotent migration: add cooldown_until column for per-entry scheduling.
+  // SQLite throws if the column already exists — catch and ignore.
+  try { _db.exec('ALTER TABLE feed_cache ADD COLUMN cooldown_until TEXT'); } catch { /* already present */ }
   // Idempotent migration: add notified_at column if not already present.
   // SQLite throws if the column already exists — catch and ignore.
   try { _db.exec('ALTER TABLE jobs ADD COLUMN notified_at TEXT'); } catch { /* already present */ }
@@ -159,6 +162,19 @@ export function markNotified(urls) {
 }
 
 /**
+ * Marks every unnotified job as notified — used by `scan.mjs --drain-backlog`
+ * to burn a pre-existing backlog without sending anything. Returns the number of
+ * rows drained. Idempotent: a second call on an empty backlog returns 0.
+ * @returns {number}
+ */
+export function markAllNotified() {
+  const db = openDb();
+  const ts = new Date().toISOString();
+  const r = db.prepare('UPDATE jobs SET notified_at = ? WHERE notified_at IS NULL').run(ts);
+  return r.changes;
+}
+
+/**
  * Filters the provided jobs array to those not yet notified (notified_at IS NULL
  * in the DB, or not in the DB at all).
  * @param {{ url: string }[]} jobs
@@ -226,4 +242,35 @@ export function setFeedCacheStatus(url, status) {
        last_status = excluded.last_status,
        last_checked_at = excluded.last_checked_at`
   ).run(url, status, new Date().toISOString());
+}
+
+/**
+ * Returns the cooldown_until ISO timestamp for a feed URL, or null when no
+ * cooldown is active (never scanned OR cooldown disabled). Used by scan.mjs to
+ * gate per-entry fetch calls so slow-changing boards (intern-list aggregator,
+ * Workday tenants) don't get re-pinged every cron tick.
+ * @param {string} url
+ * @returns {string|null}
+ */
+export function getCooldownUntil(url) {
+  const db = openDb();
+  const row = db.prepare('SELECT cooldown_until FROM feed_cache WHERE url = ?').get(url);
+  return row?.cooldown_until ?? null;
+}
+
+/**
+ * Persists a cooldown_until timestamp for a feed URL. After a successful
+ * fetch, scan.mjs calls this with `now + cooldownHours` so subsequent runs
+ * skip the entry until the cooldown expires.
+ * @param {string} url
+ * @param {string} untilIso  ISO timestamp; pass null to clear.
+ */
+export function setCooldownUntil(url, untilIso) {
+  const db = openDb();
+  db.prepare(
+    `INSERT INTO feed_cache (url, cooldown_until, last_checked_at) VALUES (?, ?, ?)
+     ON CONFLICT(url) DO UPDATE SET
+       cooldown_until = excluded.cooldown_until,
+       last_checked_at = excluded.last_checked_at`
+  ).run(url, untilIso, new Date().toISOString());
 }

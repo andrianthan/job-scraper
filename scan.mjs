@@ -13,7 +13,7 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import { dirname, join } from 'path';
 import { makeHttpCtx } from './providers/_http.mjs';
 import { roleFuzzyMatch } from './role-matcher.mjs';
-import { hasSeen, hasSeenCanon, markSeen, seenRoles, recordRun, getUnnotified, markNotified } from './db.mjs';
+import { hasSeen, hasSeenCanon, markSeen, seenRoles, recordRun, getUnnotified, markNotified, markAllNotified, getCooldownUntil, setCooldownUntil } from './db.mjs';
 import { normCompany, canonKey } from './normalize.mjs';
 import config from './portals.config.mjs';
 
@@ -112,8 +112,33 @@ function passesFreshness(job) {
   return ageDays <= MAX_JOB_AGE_DAYS;
 }
 
+// Notify-age gate — restrict what actually surfaces to the digest. Distinct from
+// passesFreshness (which gates DB writes via 21d cutoff). Jobs older than
+// MAX_NOTIFY_AGE_HOURS still get marked seen in DB (canonical dedup), they just
+// don't produce a notification. Kills repost-spam: aggregators that re-list old
+// roles to regain traction are silenced. Tune with MAX_NOTIFY_AGE_HOURS
+// (default 48; set 0 to disable).
+const MAX_NOTIFY_AGE_HOURS = Number(process.env.MAX_NOTIFY_AGE_HOURS ?? 48);
+function passesNotifyAge(job) {
+  if (!MAX_NOTIFY_AGE_HOURS) return true;
+  if (!job.postedAt) return true; // don't penalize missing data (Firecrawl, some ATS feeds)
+  const ageHours = (Date.now() - job.postedAt) / 3_600_000;
+  return ageHours <= MAX_NOTIFY_AGE_HOURS;
+}
+
 // ── Main ──────────────────────────────────────────────────────────
 export async function main() {
+  // --drain-backlog: bulk-mark every unnotified job as notified without sending
+  // anything. Used once after a big source change (e.g. intern-list rewrite) to
+  // suppress the inevitable backlog before the digest rules take effect.
+  // Idempotent: second invocation drains 0. If --notify is also set, fall
+  // through to fetch + notify (drain happens first, then fresh run on top).
+  if (process.argv.includes('--drain-backlog')) {
+    const drained = markAllNotified();
+    console.error(`🔥 drained ${drained} unnotified job(s) (--drain-backlog)`);
+    if (!process.argv.includes('--notify')) return [];
+  }
+
   const providers = await loadProviders();
   const ctx = makeHttpCtx();
 
@@ -139,15 +164,43 @@ export async function main() {
   // collected (provider.id travels with each batch) so per-job dedup can
   // still run sequentially after all fetches complete.
   const queue = config.trackedCompanies.slice(); // shallow copy — never mutate config
-  const fetchResults = []; // { ok, name, provider?, jobs?, error? }
+  const fetchResults = []; // { ok, name, provider?, jobs?, error?, cooldown?: boolean }
+  // Per-entry cooldown — slow-changing boards (intern-list aggregator, Workday
+  // tenants) gate their fetches so we don't burn network/CPU every cron tick.
+  // Default 24h, opt-out with `cooldown_hours: 0` on an entry. Cooldown is
+  // applied AFTER a successful fetch — failed fetches don't reset it (the
+  // cache row from prior runs still tells us "we already tried recently").
+  const DEFAULT_COOLDOWN_HOURS = Number(process.env.SCAN_COOLDOWN_HOURS ?? 24);
+  function resolveCooldownHours(entry) {
+    const raw = entry.cooldown_hours;
+    if (raw === undefined || raw === null) return DEFAULT_COOLDOWN_HOURS;
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : DEFAULT_COOLDOWN_HOURS;
+  }
+  function isOnCooldown(entry) {
+    const hours = resolveCooldownHours(entry);
+    if (hours <= 0) return false;
+    const until = getCooldownUntil(entry.careers_url);
+    if (!until) return false;
+    return Date.parse(until) > Date.now();
+  }
   async function worker() {
     while (queue.length) {
       const entry = queue.shift();
       if (entry.enabled === false) { fetchResults.push({ ok: true, parked: true, name: entry.name }); continue; }
+      if (isOnCooldown(entry)) {
+        fetchResults.push({ ok: true, parked: true, cooldown: true, name: entry.name });
+        continue;
+      }
       const provider = resolveProvider(entry, providers);
       if (!provider) { console.error(`⏭  no provider for ${entry.name} (${entry.careers_url})`); fetchResults.push({ ok: false, name: entry.name }); continue; }
       try {
         const jobs = await provider.fetch(entry, ctx);
+        // Stamp cooldown only on success — a 5xx shouldn't extend a board's quiet period.
+        const hours = resolveCooldownHours(entry);
+        if (hours > 0) {
+          setCooldownUntil(entry.careers_url, new Date(Date.now() + hours * 3_600_000).toISOString());
+        }
         fetchResults.push({ ok: true, name: entry.name, provider: provider.id, jobs });
       } catch (e) {
         console.error(`✗  ${entry.name} [${provider.id}]: ${e.message}`);
@@ -158,6 +211,7 @@ export async function main() {
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 
   for (const result of fetchResults) {
+    if (result.cooldown) { parked++; console.error(`⏸  ${result.name} on cooldown`); continue; }
     if (result.parked) { parked++; continue; }
     if (!result.ok) { failed++; continue; }
     scanned++;
@@ -171,6 +225,7 @@ export async function main() {
       if (!passesTitle(job.title, config.titleFilter)) continue;
       if (!passesLocation(job.location, config.locationFilter)) continue;
       if (!passesFreshness(job)) continue; // skip stale/reposted-old listings
+      if (!passesNotifyAge(job)) continue; // skip sending notify for >48h-old (still mark seen below)
       if (hasSeen(job.url)) continue; // exact-URL dedup (DB)
       // Layer 2 — canonical cross-source dedup: same normalized company|title
       // seen before (any source/URL) → skip. Catches JobSpy↔ATS and JobSpy↔JobSpy

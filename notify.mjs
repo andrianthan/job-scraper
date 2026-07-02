@@ -23,31 +23,113 @@ function sourceFooter(job) {
   return { footer: { text: `via ${SOURCE_LABELS[job.source] || job.source}` } };
 }
 
+// Pick the link to surface: prefer the direct ATS URL the provider captured,
+// fall back to a third-party apply redirect (e.g. jobright.ai for intern-list
+// aggregator entries). Returns the empty string when neither is present — the
+// embed/title will still render, just without a clickable link.
+function applyLink(job) {
+  return job.url || job.fallbackUrl || '';
+}
+
+// Append a second footer line when we surfaced a fallback link, so the user
+// knows the click is a third-party redirect and not a direct company ATS page.
+function fallbackNote(job) {
+  if (!job.fallbackUrl || job.url) return '';
+  try {
+    return `↪ apply via ${new URL(job.fallbackUrl).hostname}`;
+  } catch {
+    return '';
+  }
+}
+
 function chunk(arr, n) {
   const out = [];
   for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n));
   return out;
 }
 
+// ── Company grouping ─────────────────────────────────────────────────────────
+// Collapse N listings for one company into a single digest embed so a mega-ATS
+// (Walmart, Simplify) doesn't spam the channel. Per-company soft cap prevents
+// the embed description from blowing past Discord's 4096-char ceiling when a
+// single firm drops 20+ listings. Tune with MAX_NOTIFY_PER_COMPANY (default 5;
+// set 0 to disable truncation — embed truncation becomes the bound). Read on
+// every call so test env changes take effect without a module reload.
+function getMaxPerCompany() {
+  return Number(process.env.MAX_NOTIFY_PER_COMPANY ?? 5);
+}
+
+/**
+ * Group jobs by company. Within each group: freshest first, then alpha. Across
+ * groups: freshest top listing first (so most-recent company is the leading
+ * embed in the Discord message). Returns mutable objects — safe to consume in
+ * the same tick, do not reuse across ticks.
+ *
+ * Each group carries `totalCount` (original size before truncation) so channel
+ * renderers can show "8 new" in titles even when only 5 listings fit inside the
+ * embed. `truncated` is the overflow that didn't make it into `jobs`.
+ *
+ * @param {Array<{company?:string,title:string,postedAt?:number,source?:string}>} jobs
+ * @returns {Array<{company:string, source:string|null, jobs:Array, totalCount:number, truncated:number}>}
+ */
+export function groupByCompany(jobs) {
+  const maxPerCompany = getMaxPerCompany();
+  const by = new Map();
+  const labelFor = (j) => (typeof j.company === 'string' && j.company.trim()) || 'Unknown';
+  for (const j of jobs) {
+    const key = labelFor(j);
+    if (!by.has(key)) by.set(key, { company: key, source: j.source || null, jobs: [] });
+    by.get(key).jobs.push(j);
+  }
+  const out = [];
+  for (const g of by.values()) {
+    g.jobs.sort((a, b) => (b.postedAt || 0) - (a.postedAt || 0) || String(a.title).localeCompare(String(b.title)));
+    g.totalCount = g.jobs.length;
+    if (maxPerCompany && g.jobs.length > maxPerCompany) {
+      g.truncated = g.jobs.length - maxPerCompany;
+      g.jobs = g.jobs.slice(0, maxPerCompany);
+    } else {
+      g.truncated = 0;
+    }
+    out.push(g);
+  }
+  return out.sort((a, b) => (b.jobs[0]?.postedAt || 0) - (a.jobs[0]?.postedAt || 0));
+}
+
+/**
+ * Most-common source label for a group's footers. Empty string → caller omits
+ * the footer line. Handles the rare case where the same company surfaces from
+ * two providers in one run (e.g. intern-list + Greenhouse both list Acme).
+ * @param {{source?:string|null}[]} entries jobs in a single group
+ */
+function pickGroupSource(entries) {
+  const counts = new Map();
+  for (const j of entries) {
+    const s = j.source || '';
+    if (!s) continue;
+    counts.set(s, (counts.get(s) || 0) + 1);
+  }
+  if (!counts.size) return '';
+  let best = '', bestN = 0;
+  for (const [s, n] of counts) {
+    if (n > bestN || (n === bestN && s < best)) { best = s; bestN = n; }
+  }
+  return best;
+}
+
 // ── Discord channel ───────────────────────────────────────────────────────────
 // Reads DISCORD_WEBHOOK_URL (canonical) with DISCORD_WEBHOOK alias.
 // Chunks embeds at 10 (Discord API limit) — still one logical digest per run.
+// Jobs are grouped by company BEFORE chunking so a mega-ATS with N listings
+// produces one embed (with N titles inside) instead of N embeds.
 export async function notifyDiscord(jobs) {
   const webhook = process.env.DISCORD_WEBHOOK_URL || process.env.DISCORD_WEBHOOK;
   if (!webhook) return;
 
-  for (const batch of chunk(jobs, 10)) {
-    const embeds = batch.map(j => ({
-      title: `${j.company} — ${j.title}`.slice(0, 256),
-      url: j.url,
-      description: [
-        j.location && `📍 ${j.location}`,
-        j.salary && `💰 ${j.salary.min}-${j.salary.max} ${j.salary.currency}`,
-        j.postedAt && `🗓️ Posted <t:${Math.floor(j.postedAt / 1000)}:f>`,
-      ].filter(Boolean).join('\n') || undefined,
-      color: 0x2b6cb0,
-      ...sourceFooter(j),
-    }));
+  const groups = groupByCompany(jobs);
+  for (const batch of chunk(groups, 10)) {
+    const embeds = batch.map(groupEmbed);
+    const totalListings = batch.reduce((n, g) => n + g.totalCount, 0);
 
     const res = await _fetch(webhook, {
       method: 'POST',
@@ -55,14 +137,36 @@ export async function notifyDiscord(jobs) {
       body: JSON.stringify({
         username: process.env.BOT_NAME || 'Papa Omega Phi',
         avatar_url: process.env.BOT_AVATAR_URL || undefined,
-        content: `🆕 ${batch.length} new internship(s)`,
+        content: `🆕 ${totalListings} new internship(s) across ${batch.length} compan${batch.length === 1 ? 'y' : 'ies'}`,
         embeds,
       }),
     });
     if (!res.ok) throw new Error(`Discord ${res.status}: ${await res.text().catch(() => '')}`);
     await new Promise(r => setTimeout(r, 1000));
   }
-  console.error(`📨 pushed ${jobs.length} job(s) to Discord`);
+  console.error(`📨 pushed ${jobs.length} job(s) across ${groups.length} compan${groups.length === 1 ? 'y' : 'ies'} to Discord`);
+}
+
+/**
+ * Build one Discord/field-channel embed for a company group. Top-listing URL is
+ * the clickable target — every other title in the group is reachable via the
+ * jobright/info page in the listing body if the user needs alt sources.
+ * @param {{company:string,source:string|null,jobs:any[],truncated?:number}} group
+ */
+function groupEmbed(group) {
+  const top = group.jobs[0];
+  const srcLabel = pickGroupSource(group.jobs);
+  const n = group.totalCount;
+  return {
+    title: `${group.company} — ${n} new internship${n === 1 ? '' : 's'}`.slice(0, 256),
+    url: applyLink(top),
+    description: [
+      ...group.jobs.map(j => `• **${j.title}**${j.location ? ` _(${j.location})_` : ''}${fallbackNote(j) ? ` _${fallbackNote(j)}_` : ''}`),
+      group.truncated ? `… _+${group.truncated} more_` : null,
+    ].filter(Boolean).join('\n') || undefined,
+    color: 0x2b6cb0,
+    ...(srcLabel ? sourceFooter({ source: srcLabel }) : {}),
+  };
 }
 
 // ── Field sub-channel routing ───────────────────────────────────────────────
@@ -71,25 +175,28 @@ export async function notifyDiscord(jobs) {
 // members get notified. Independent of and additive to the #job-board firehose:
 // a job appears in #job-board AND in every field channel it classifies into.
 // Jobs that match no role are not routed here (firehose still covers them).
+// Within a field channel, jobs are ALSO grouped by company so a single firm
+// dropping 5 finance intern roles doesn't produce 5 separate embeds — one
+// "Acme — 5 new roles" embed with the 5 titles listed inside.
 export async function notifyFieldChannels(jobs) {
   const routed = await routeJobs(jobs);
   if (!routed.size) return;
 
   for (const [channel, { webhook, entries }] of routed) {
-    for (const batch of chunk(entries, 10)) {
-      const embeds = batch.map(({ job }) => ({
-        title: `${job.company} — ${job.title}`.slice(0, 256),
-        url: job.url,
-        description: [
-          job.location && `📍 ${job.location}`,
-          job.salary && `💰 ${job.salary.min}-${job.salary.max} ${job.salary.currency}`,
-          job.postedAt && `🗓️ Posted <t:${Math.floor(job.postedAt / 1000)}:f>`,
-        ].filter(Boolean).join('\n') || undefined,
-        color: 0x2b6cb0,
-        ...sourceFooter(job),
-      }));
-      const roleIds = [...new Set(batch.flatMap(e => e.roleIds))];
-      const pings = roleIds.map(id => `<@&${id}>`).join(' ');
+    // Group by company inside this channel first, then chunk by Discord's
+    // 10-embed limit. Role pings are deduped per batch via the original
+    // roleIds so a "<@&finance-ping>" still appears once even if the group
+    // spans multiple fields.
+    const grouped = groupByCompany(entries.map((e) => e.job)).map((g) => ({
+      group: g,
+      roleIds: [...new Set(entries.filter((e) => e.job.company === g.company || (!e.job.company && g.company === 'Unknown')).flatMap((e) => e.roleIds))],
+    }));
+
+    for (const batch of chunk(grouped, 10)) {
+      const embeds = batch.map(({ group }) => groupEmbed(group));
+      const roleIds = [...new Set(batch.flatMap((b) => b.roleIds))];
+      const pings = roleIds.map((id) => `<@&${id}>`).join(' ');
+      const totalRoles = batch.reduce((n, b) => n + b.group.totalCount, 0);
 
       const res = await _fetch(webhook, {
         method: 'POST',
@@ -97,7 +204,7 @@ export async function notifyFieldChannels(jobs) {
         body: JSON.stringify({
           username: process.env.BOT_NAME || 'Papa Omega Phi',
           avatar_url: process.env.BOT_AVATAR_URL || undefined,
-          content: `🆕 ${batch.length} new role(s) ${pings}`.trim(),
+          content: `🆕 ${totalRoles} new role(s) across ${batch.length} compan${batch.length === 1 ? 'y' : 'ies'} ${pings}`.trim(),
           embeds,
           allowed_mentions: { parse: ['roles'] },
         }),
@@ -105,7 +212,8 @@ export async function notifyFieldChannels(jobs) {
       if (!res.ok) throw new Error(`Discord[${channel}] ${res.status}: ${await res.text().catch(() => '')}`);
       await new Promise(r => setTimeout(r, 1000));
     }
-    console.error(`📨 routed ${entries.length} job(s) to #${channel}`);
+    const totalListings = grouped.reduce((n, g) => n + g.group.totalCount, 0);
+    console.error(`📨 routed ${totalListings} job(s) across ${grouped.length} compan${grouped.length === 1 ? 'y' : 'ies'} to #${channel}`);
   }
 }
 
@@ -113,19 +221,30 @@ export async function notifyFieldChannels(jobs) {
 // POST https://api.resend.com/emails — Authorization: Bearer RESEND_API_KEY
 // NOTIFY_EMAIL = recipient. NOTIFY_EMAIL_FROM = sender (default onboarding@resend.dev).
 // Errors are logged but never thrown — per graceful-degradation decision.
+// Email body groups by company so a Walmart-style flood produces one <h3>
+// header with N <li> bullets instead of a flat soup.
 export async function notifyEmail(jobs) {
   const to = process.env.NOTIFY_EMAIL;
   const apiKey = process.env.RESEND_API_KEY;
   if (!to || !apiKey) return;
 
   const from = process.env.NOTIFY_EMAIL_FROM || 'onboarding@resend.dev';
-  const subject = `${jobs.length} new internship${jobs.length !== 1 ? 's' : ''}`;
+  const groups = groupByCompany(jobs);
+  const subject = `${jobs.length} new internship${jobs.length !== 1 ? 's' : ''} across ${groups.length} compan${groups.length === 1 ? 'y' : 'ies'}`;
   const html =
-    `<h2>${subject}</h2><ul>` +
-    jobs
-      .map(j => `<li><a href="${j.url}">${j.company} — ${j.title}</a>${j.location ? ` [${j.location}]` : ''}</li>`)
-      .join('') +
-    '</ul>';
+    `<h2>${subject}</h2>` +
+    groups.map((g) => {
+      const headerLabel = `${g.company} (${g.totalCount}${g.truncated ? ` — +${g.truncated} more` : ''})`;
+      return `<h3>${headerLabel}</h3><ul>` +
+        g.jobs.map((j) => {
+          const href = applyLink(j);
+          const tag = !j.url && j.fallbackUrl ? ' <em>(via ' + (() => {
+            try { return new URL(j.fallbackUrl).hostname; } catch { return 'fallback'; }
+          })() + ')</em>' : '';
+          return `<li><a href="${href}">${j.title}</a>${j.location ? ` [${j.location}]` : ''}${tag}</li>`;
+        }).join('') +
+        '</ul>';
+    }).join('');
 
   const res = await _fetch('https://api.resend.com/emails', {
     method: 'POST',
@@ -136,7 +255,7 @@ export async function notifyEmail(jobs) {
     body: JSON.stringify({ from, to, subject, html }),
   });
   if (!res.ok) throw new Error(`Resend ${res.status}: ${await res.text().catch(() => '')}`);
-  console.error(`📧 email sent to ${to} (${jobs.length} job(s))`);
+  console.error(`📧 email sent to ${to} (${jobs.length} job(s) across ${groups.length} compan${groups.length === 1 ? 'y' : 'ies'})`);
 }
 
 // ── Status heartbeat ──────────────────────────────────────────────────────────
@@ -205,11 +324,15 @@ export async function notify(jobs) {
   const hasField   = Object.values(CHANNELS).some(env => process.env[env]);
 
   if (!hasDiscord && !hasEmail && !hasField) {
-    // Graceful no-config: digest to stdout (NOTIF-03)
-    console.log(`--- ${jobs.length} new internship${jobs.length !== 1 ? 's' : ''} ---`);
-    for (const j of jobs) {
-      console.log(`• ${j.company} — ${j.title}${j.location ? `  [${j.location}]` : ''}`);
-      console.log(`  ${j.url}`);
+    // Graceful no-config: digest to stdout (NOTIF-03), grouped by company.
+    const groups = groupByCompany(jobs);
+    console.log(`--- ${jobs.length} new internship${jobs.length !== 1 ? 's' : ''} across ${groups.length} compan${groups.length === 1 ? 'y' : 'ies'} ---`);
+    for (const g of groups) {
+      console.log(`▸ ${g.company} (${g.totalCount}${g.truncated ? ` — +${g.truncated} more` : ''})`);
+      for (const j of g.jobs) {
+        console.log(`  • ${j.title}${j.location ? `  [${j.location}]` : ''}`);
+        console.log(`    ${applyLink(j)}`);
+      }
     }
     return { ok: true, channels: {} };
   }
