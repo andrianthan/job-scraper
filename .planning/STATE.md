@@ -1,64 +1,61 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
+milestone: v1.0 + hardening
 milestone_name: milestone
 status: verifying
-stopped_at: Completed 05-config-docs-test/05-02-PLAN.md
-last_updated: "2026-06-28T22:29:29.724Z"
-last_activity: 2026-06-28
+stopped_at: audit-notify-ttl-sources branch merged to master (060b352)
+last_updated: "2026-07-01T21:25:00.000Z"
+last_activity: 2026-07-01
 progress:
   total_phases: 5
   completed_phases: 5
   total_plans: 7
   completed_plans: 7
-  percent: 0
+  percent: 100
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-06-28)
+See: .planning/PROJECT.md (reconciled 2026-07-01)
 
 **Core value:** New, relevant internship postings reach the user reliably and without duplicates
-**Current focus:** Phase 5 — Config, Docs & Test
+**Current focus:** Post-v1.0 hardening complete — ready for v1.1 milestone or further ad-hoc work
 
 ## Current Position
 
-Phase: 5
-Plan: Not started
-Status: Phase complete — ready for verification
-Last activity: 2026-06-28
+Phase: 5 (all complete)
+Plan: All complete
+Status: v1.0 milestone verified + post-v1.0 hardening shipped
+Last activity: 2026-07-01
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 0
+- Total plans completed: 7 (v1.0)
 - Average duration: -
-- Total execution time: 0 hours
+- Total execution time: 0 hours (post-v1.0 work done ad-hoc, not via GSD plans)
 
 **By Phase:**
 
 | Phase | Plans | Total | Avg/Plan |
 |-------|-------|-------|----------|
-| - | - | - | - |
+| 01-scanner-hardening | 1 | 1 | - |
+| 02-sqlite-storage | 2 | 2 | - |
+| 03-scheduling | 1 | 1 | - |
+| 04-notifications | 1 | 1 | - |
+| 05-config-docs-test | 2 | 2 | - |
 
 **Recent Trend:**
 
-- Last 5 plans: none yet
-- Trend: -
+- Last 7 plans: 01-01, 02-01, 02-02, 03-01, 04-01, 05-01, 05-02
+- Trend: All completed; v1.0 milestone verified
 
 *Updated after each plan completion*
-| Phase 01-scanner-hardening P01 | 6 | 2 tasks | 3 files |
-| Phase 02-sqlite-storage P01 | 2 | 2 tasks | 4 files |
-| Phase 02-sqlite-storage P02-02 | 6 | 2 tasks | 2 files |
-| Phase 03-scheduling P01 | 2 | 3 tasks | 4 files |
-| Phase 04-notifications P04-01 | 3 | 3 tasks | 4 files |
-| Phase 05-config-docs-test P01 | 2 | 2 tasks | 3 files |
-| Phase 05-config-docs-test P05-02 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -83,6 +80,10 @@ Recent decisions affecting current work:
 - [Phase 05-config-docs-test]: Guard uses process.argv[1] null-check before pathToFileURL to handle eval contexts without throwing
 - [Phase 05-config-docs-test]: fetch stub keyed on URL substring (greenhouse.io/ashbyhq.com/else) to intercept all provider calls without hardcoding slugs
 - [Phase 05-config-docs-test]: README links to docs/SCHEDULING.md rather than duplicating scheduling content
+- [post-v1.0 audit-notify-ttl-sources]: Per-entry cooldown (default 24h) via feed_cache.cooldown_until; simplifies scheduling and protects slow-changing boards from cron-tick spam
+- [post-v1.0 audit-notify-ttl-sources]: Notify-age gate (MAX_NOTIFY_AGE_HOURS=48) separate from freshness gate (21d DB-write cutoff) — silences repost-spam without losing dedup history
+- [post-v1.0 audit-notify-ttl-sources]: Company-grouped digest (MAX_NOTIFY_PER_COMPANY=5) collapses mega-ATS listings into one embed; preserves jobright.ai fallback links via applyLink()
+- [post-v1.0 audit-notify-ttl-sources]: --drain-backlog flag bulk-clears pre-existing unnotified jobs without sending — used after big source changes (intern-list rewrite) to suppress inevitable floods
 
 ### Pending Todos
 
@@ -94,6 +95,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-28T22:23:53.676Z
-Stopped at: Completed 05-config-docs-test/05-02-PLAN.md
+Last session: 2026-07-01T21:25:00.000Z
+Stopped at: Reconciled STATE.md + PROJECT.md to reflect post-v1.0 reality. audit-notify-ttl-sources branch merged to master (060b352), pushed to origin. Live scan verified: 188 jobs → 25 company-grouped embeds → 3 Discord POSTs.
 Resume file: None
