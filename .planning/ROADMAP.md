@@ -110,7 +110,10 @@ Plans:
   3. Re-running the scan with one new job adds one row at the bottom — prior rows remain untouched (append-only, never truncated)
   4. The CSV passes a parser round-trip test: reading the file back yields the same jobs in the same order
   5. Pipe characters, commas, and quotes inside job fields are properly escaped so the table renders correctly on GitHub
-**Plans**: TBD
+**Plans**: 1 plan
+
+Plans:
+- [ ] 06-01-PLAN.md — csv-writer.mjs (appendRows + parseRows) + test/csv-writer.test.mjs (7 describe blocks)
 
 ### Phase 7: GH Actions Bot Integration
 **Goal**: Each scan run commits and pushes the CSV to `andrianthan/jobs-data` via GH Actions bot
