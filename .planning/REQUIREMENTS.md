@@ -84,7 +84,7 @@ REQ-IDs map to exactly one phase (see Traceability, filled by roadmap).
 
 - [ ] **CSV-01**: Operator can configure a GitHub-hosted CSV as the `#job-board` notification target — separate `andrianthan/jobs-data` repo, raw URL pinned in channel
 - [x] **CSV-02**: Each scan appends new rows to the CSV in GH-flavored markdown table format with columns: Date Added, Company, Role, Location, URL, Source, Age, Application
-- [ ] **CSV-03**: CSV file is auto-committed by GH Actions bot on each scan run (writes to disk + commits + pushes via configured GH_TOKEN)
+- [x] **CSV-03**: CSV file is auto-committed by GH Actions bot on each scan run (writes to disk + commits + pushes via configured GH_TOKEN)
 - [ ] **CSV-04**: `#job-board` channel posts ONE message with the live raw URL; message is never re-sent — only the underlying file changes
 - [ ] **CSV-05**: Per-company group embeds in `#job-board` are removed (CSV replaces them); field channels keep embeds
 - [x] **CSV-06**: CSV accumulates across runs (append-only, never truncated); old rows remain for archive/search
@@ -98,7 +98,7 @@ REQ-IDs map to exactly one phase (see Traceability, filled by roadmap).
 |--------|-------|--------|
 | CSV-01 | Phase 8 | Pending |
 | CSV-02 | Phase 6 | Complete |
-| CSV-03 | Phase 7 | Pending |
+| CSV-03 | Phase 7 | Complete |
 | CSV-04 | Phase 8 | Pending |
 | CSV-05 | Phase 8 | Pending |
 | CSV-06 | Phase 6 | Complete |
