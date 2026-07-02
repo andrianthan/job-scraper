@@ -1,17 +1,17 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0 + hardening
+milestone: v1.0
 milestone_name: milestone
-status: verifying
-stopped_at: audit-notify-ttl-sources branch merged to master (060b352)
-last_updated: "2026-07-01T21:25:00.000Z"
-last_activity: 2026-07-01
+status: executing
+stopped_at: Phase 6 context gathered
+last_updated: "2026-07-02T05:31:21.129Z"
+last_activity: 2026-07-02 -- Phase 06 execution started
 progress:
-  total_phases: 5
+  total_phases: 9
   completed_phases: 5
-  total_plans: 7
+  total_plans: 8
   completed_plans: 7
-  percent: 100
+  percent: 56
 ---
 
 # Project State
@@ -21,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (reconciled 2026-07-01)
 
 **Core value:** New, relevant internship postings reach the user reliably and without duplicates
-**Current focus:** Post-v1.0 hardening complete — ready for v1.1 milestone or further ad-hoc work
+**Current focus:** Phase 06 — csv-writer-format
 
 ## Current Position
 
-Phase: 5 (all complete)
-Plan: All complete
-Status: v1.0 milestone verified + post-v1.0 hardening shipped
-Last activity: 2026-07-01
+Phase: 06 (csv-writer-format) — EXECUTING
+Plan: 1 of 1
+Status: Executing Phase 06
+Last activity: 2026-07-02 -- Phase 06 execution started
 
-Progress: [██████████] 100%
+Progress: [█████░░░░░] 56% (5/9 phases complete — v1.0 done, v1.1 not started)
 
 ## Performance Metrics
 
@@ -49,6 +49,7 @@ Progress: [██████████] 100%
 | 03-scheduling | 1 | 1 | - |
 | 04-notifications | 1 | 1 | - |
 | 05-config-docs-test | 2 | 2 | - |
+| 06-csv-writer-format (v1.1) | 0 | 0 | - |
 
 **Recent Trend:**
 
@@ -84,6 +85,10 @@ Recent decisions affecting current work:
 - [post-v1.0 audit-notify-ttl-sources]: Notify-age gate (MAX_NOTIFY_AGE_HOURS=48) separate from freshness gate (21d DB-write cutoff) — silences repost-spam without losing dedup history
 - [post-v1.0 audit-notify-ttl-sources]: Company-grouped digest (MAX_NOTIFY_PER_COMPANY=5) collapses mega-ATS listings into one embed; preserves jobright.ai fallback links via applyLink()
 - [post-v1.0 audit-notify-ttl-sources]: --drain-backlog flag bulk-clears pre-existing unnotified jobs without sending — used after big source changes (intern-list rewrite) to suppress inevitable floods
+- [v1.1 roadmap]: CSV uses GH-flavored markdown table (not literal CSV) — columns Date Added, Company, Role, Location, URL, Source, Age, Application; pipes/quotes in fields must be escaped for proper rendering
+- [v1.1 roadmap]: jobs-data repo lives at `andrianthan/jobs-data`; GH Actions bot commits with `[skip ci]` to avoid recursive workflow runs
+- [v1.1 roadmap]: #job-board pinned message posted on first CSV-configured run only; subsequent runs update the file silently without re-posting
+- [v1.1 roadmap]: MAX_NOTIFY_PER_COMPANY cap moves from #job-board (removed) to email digest + CSV row count only; field-channel embeds remain uncapped
 
 ### Pending Todos
 
@@ -95,6 +100,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-01T21:25:00.000Z
-Stopped at: Reconciled STATE.md + PROJECT.md to reflect post-v1.0 reality. audit-notify-ttl-sources branch merged to master (060b352), pushed to origin. Live scan verified: 188 jobs → 25 company-grouped embeds → 3 Discord POSTs.
-Resume file: None
+Last session: 2026-07-02T05:44:34Z
+Stopped at: Phase 6 plan 1 complete (csv-writer.mjs + test suite, 91 tests pass)
+Resume file: .planning/phases/06-csv-writer-format/06-01-SUMMARY.md
