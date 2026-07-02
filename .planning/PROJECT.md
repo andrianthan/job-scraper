@@ -99,11 +99,13 @@ Stack: Node 22+, ESM, **zero npm deps**. SQLite via `node:sqlite` built-in.
   post-v1.0
 - ✓ GH-flavored markdown CSV writer (8-column header, append-only, escape
   rules for pipe/newline/backtick) — Phase 6 (CSV-02, CSV-06, CSV-09)
+- ✓ GH Actions bot commits + pushes CSV to `andrianthan/jobs-data` on each
+  scan run (push-csv.mjs helper, workflow extension, `contents:write` PAT,
+  `[skip ci]` tag) — Phase 7 (CSV-03)
 
 ### Active (v1.1)
 
 - [ ] **CSV-01**: Operator can configure a GitHub-hosted CSV as the `#job-board` notification target (separate `jobs-data` repo, raw URL pinned)
-- [ ] **CSV-03**: CSV file is auto-committed by GH Actions bot on each scan run (writes to disk + commits + pushes via configured GH token)
 - [ ] **CSV-04**: `#job-board` channel posts ONE message with the live raw URL; message is never re-sent — only the underlying file changes
 - [ ] **CSV-05**: Per-company group embeds in `#job-board` are removed (CSV replaces them); field channels keep embeds
 - [ ] **CSV-07**: Cap=40 / `MAX_NOTIFY_PER_COMPANY` / company-grouping apply to CSV row count and email digest, not to field-channel embeds
@@ -164,4 +166,4 @@ This document evolves at phase transitions and milestone boundaries.
 
 ---
 
-*Last reconciled: 2026-07-02 (Phase 6 complete — CSV writer + tests, 91/91 green)*
+*Last reconciled: 2026-07-02 (Phase 7 complete — GH Actions bot CSV push, 103/103 green)*
