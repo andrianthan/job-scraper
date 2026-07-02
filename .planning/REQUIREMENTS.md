@@ -96,12 +96,12 @@ REQ-IDs map to exactly one phase (see Traceability, filled by roadmap).
 
 | REQ-ID | Phase | Status |
 |--------|-------|--------|
-| CSV-01 | TBD | Pending |
-| CSV-02 | TBD | Pending |
-| CSV-03 | TBD | Pending |
-| CSV-04 | TBD | Pending |
-| CSV-05 | TBD | Pending |
-| CSV-06 | TBD | Pending |
-| CSV-07 | TBD | Pending |
-| CSV-08 | TBD | Pending |
-| CSV-09 | TBD | Pending |
+| CSV-01 | Phase 8 | Pending |
+| CSV-02 | Phase 6 | Pending |
+| CSV-03 | Phase 7 | Pending |
+| CSV-04 | Phase 8 | Pending |
+| CSV-05 | Phase 8 | Pending |
+| CSV-06 | Phase 6 | Pending |
+| CSV-07 | Phase 8 | Pending |
+| CSV-08 | Phase 9 | Pending |
+| CSV-09 | Phase 6 | Pending |

@@ -2,18 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: CSV-as-Notification
-status: defining_requirements
-stopped_at: Milestone v1.1 started — CSV-as-Notification scope locked
-last_updated: "2026-07-01T21:40:00.000Z"
+status: roadmap_defined
+stopped_at: v1.1 roadmap defined — 4 phases (6-9), 9 requirements mapped
+last_updated: "2026-07-01T21:45:00.000Z"
 last_activity: 2026-07-01
 progress:
-  total_phases: 5
+  total_phases: 9
   completed_phases: 5
   total_plans: 7
   completed_plans: 7
-  percent: 100
+  percent: 56
 ---
-
 # Project State
 
 ## Project Reference
@@ -27,10 +26,10 @@ See: .planning/PROJECT.md (reconciled 2026-07-01)
 
 Phase: 6 (next)
 Plan: Not started
-Status: Defining requirements
+Status: Roadmap defined
 Last activity: 2026-07-01
 
-Progress: [░░░░░░░░░░] 0% (v1.1 not started)
+Progress: [█████░░░░░] 56% (5/9 phases complete — v1.0 done, v1.1 not started)
 
 ## Performance Metrics
 
@@ -49,6 +48,7 @@ Progress: [░░░░░░░░░░] 0% (v1.1 not started)
 | 03-scheduling | 1 | 1 | - |
 | 04-notifications | 1 | 1 | - |
 | 05-config-docs-test | 2 | 2 | - |
+| 06-csv-writer-format (v1.1) | 0 | 0 | - |
 
 **Recent Trend:**
 
@@ -84,6 +84,10 @@ Recent decisions affecting current work:
 - [post-v1.0 audit-notify-ttl-sources]: Notify-age gate (MAX_NOTIFY_AGE_HOURS=48) separate from freshness gate (21d DB-write cutoff) — silences repost-spam without losing dedup history
 - [post-v1.0 audit-notify-ttl-sources]: Company-grouped digest (MAX_NOTIFY_PER_COMPANY=5) collapses mega-ATS listings into one embed; preserves jobright.ai fallback links via applyLink()
 - [post-v1.0 audit-notify-ttl-sources]: --drain-backlog flag bulk-clears pre-existing unnotified jobs without sending — used after big source changes (intern-list rewrite) to suppress inevitable floods
+- [v1.1 roadmap]: CSV uses GH-flavored markdown table (not literal CSV) — columns Date Added, Company, Role, Location, URL, Source, Age, Application; pipes/quotes in fields must be escaped for proper rendering
+- [v1.1 roadmap]: jobs-data repo lives at `andrianthan/jobs-data`; GH Actions bot commits with `[skip ci]` to avoid recursive workflow runs
+- [v1.1 roadmap]: #job-board pinned message posted on first CSV-configured run only; subsequent runs update the file silently without re-posting
+- [v1.1 roadmap]: MAX_NOTIFY_PER_COMPANY cap moves from #job-board (removed) to email digest + CSV row count only; field-channel embeds remain uncapped
 
 ### Pending Todos
 
@@ -95,6 +99,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-07-01T21:40:00.000Z
-Stopped at: v1.1 CSV-as-Notification milestone started. Scope locked: GH-flavored markdown CSV in separate `andrianthan/jobs-data` repo, auto-committed by GH Actions bot, ONE pinned message in #job-board with live raw URL, embeds killed in #job-board (field channels keep embeds). PROJECT.md + STATE.md updated, REQUIREMENTS.md next.
+Last session: 2026-07-01T21:45:00.000Z
+Stopped at: v1.1 roadmap defined. 4 phases (6-9) covering CSV writer/format (CSV-02, CSV-06, CSV-09), GH Actions bot integration (CSV-03), #job-board switchover (CSV-01, CSV-04, CSV-05, CSV-07), and documentation (CSV-08). All 9 v1.1 requirements mapped 1:1.
 Resume file: None

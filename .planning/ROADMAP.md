@@ -2,11 +2,12 @@
 
 ## Overview
 
-A brownfield CLI daemon with a working scanner core. This roadmap hardens that
-core, migrates the flat-JSON dedup store to SQLite, wires unattended scheduling,
-enriches notifications with digest batching and email, then seals the project
-with documentation and an end-to-end test. Each phase delivers a coherent,
-verifiable capability on top of what came before.
+v1.0 shipped a working CLI daemon (scanner hardening, SQLite storage,
+scheduling, notifications, config/docs/test). v1.1 replaces per-company Discord
+embeds in `#job-board` with a single, auto-updating CSV hosted in a separate
+GitHub repo — pinned message with live raw URL, never re-sent. Field channels
+keep their embeds. This roadmap delivers that capability across four phases:
+CSV writer/format, GH Actions bot integration, channel switchover, and docs.
 
 ## Phases
 
@@ -21,6 +22,10 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Scheduling** - Wire unattended cron + GitHub Actions execution with incremental-only notifications (completed 2026-06-28)
 - [x] **Phase 4: Notifications** - Digest batching, email channel, graceful degradation, sent-log dedup guard (completed 2026-06-28)
 - [x] **Phase 5: Config, Docs & Test** - Operator-ready README, config examples, and a passing end-to-end test suite (completed 2026-06-28)
+- [ ] **Phase 6: CSV Writer & Format** - Append-only markdown-table CSV writer with GH-flavored column schema and unit tests
+- [ ] **Phase 7: GH Actions Bot Integration** - Auto-commit/push the CSV to `andrianthan/jobs-data` on each scan via configured GH_TOKEN
+- [ ] **Phase 8: #job-board Channel Switchover** - Replace per-company embeds with one pinned raw-URL message; field channels untouched
+- [ ] **Phase 9: CSV Channel Documentation** - README section covering jobs-data repo creation, GH_TOKEN config, and pinned-message setup
 
 ## Phase Details
 
@@ -95,15 +100,64 @@ Plans:
 - [x] 05-01-PLAN.md — scan.mjs testability refactor (export main + guard) + e2e test + npm test script
 - [x] 05-02-PLAN.md — README operator-path rewrite + config reference table + .env.example
 
+### Phase 6: CSV Writer & Format
+**Goal**: New jobs are appended to a GH-flavored markdown CSV in a stable, testable format
+**Depends on**: Phase 5
+**Requirements**: CSV-02, CSV-06, CSV-09
+**Success Criteria** (what must be TRUE):
+  1. A scan that finds N new jobs writes exactly N new rows to the CSV file under a header line: Date Added, Company, Role, Location, URL, Source, Age, Application
+  2. Running two consecutive scans with the same input produces zero new rows on the second pass (no duplicate append)
+  3. Re-running the scan with one new job adds one row at the bottom — prior rows remain untouched (append-only, never truncated)
+  4. The CSV passes a parser round-trip test: reading the file back yields the same jobs in the same order
+  5. Pipe characters, commas, and quotes inside job fields are properly escaped so the table renders correctly on GitHub
+**Plans**: TBD
+
+### Phase 7: GH Actions Bot Integration
+**Goal**: Each scan run commits and pushes the CSV to `andrianthan/jobs-data` via GH Actions bot
+**Depends on**: Phase 6
+**Requirements**: CSV-03
+**Success Criteria** (what must be TRUE):
+  1. The GH Actions workflow checks out the `andrianthan/jobs-data` repo, runs the scan, writes the CSV, commits it with a `[skip ci]` message, and pushes back to the same branch using the configured `GH_TOKEN`
+  2. When no new jobs are found, the workflow exits cleanly without committing an empty-change diff
+  3. The workflow fails loudly (non-zero exit) if `GH_TOKEN` or the target repo is misconfigured, rather than silently swallowing the error
+  4. After a successful run, the raw URL `https://raw.githubusercontent.com/andrianthan/jobs-data/main/jobs.csv` returns the updated file
+**Plans**: TBD
+
+### Phase 8: #job-board Channel Switchover
+**Goal**: `#job-board` posts a single pinned raw-URL message; per-company embeds gone; field channels and email preserved
+**Depends on**: Phase 7
+**Requirements**: CSV-01, CSV-04, CSV-05, CSV-07
+**Success Criteria** (what must be TRUE):
+  1. Setting `CSV_URL` (the raw URL) makes the `#job-board` channel post exactly one message containing that URL — the message is posted on first run only and never re-sent
+  2. Subsequent runs do not re-post to `#job-board` even when new jobs are added to the CSV
+  3. `#job-board` no longer renders per-company group embeds (CSV replaces them); field channels (`#finance-pings`, etc.) still receive per-company embeds on new jobs
+  4. Email digests still respect `MAX_NOTIFY_PER_COMPANY` (default 5) and the cap=40 grouping; field-channel embeds ignore the per-company cap
+  5. Re-running the scan with zero new jobs does not post anything to `#job-board` and does not send a duplicate email
+**Plans**: TBD
+
+### Phase 9: CSV Channel Documentation
+**Goal**: README documents the CSV channel setup so the operator can reproduce it without reading source
+**Depends on**: Phase 8
+**Requirements**: CSV-08
+**Success Criteria** (what must be TRUE):
+  1. README has a CSV Channel Setup section that walks through: create `andrianthan/jobs-data` repo, add `GH_TOKEN` secret, set `CSV_URL` env, pin the message in `#job-board`
+  2. The section includes an example CSV URL and an example pinned-message content
+  3. `.env.example` lists `CSV_URL`, `GH_TOKEN`, and `JOBS_DATA_REPO` with inline comments
+**Plans**: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
+Phases execute in numeric order: 6 → 7 → 8 → 9
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Scanner Hardening | 1/1 | Complete    | 2026-06-28 |
-| 2. SQLite Storage | 0/2 | Complete    | 2026-06-28 |
+| 2. SQLite Storage | 2/2 | Complete    | 2026-06-28 |
 | 3. Scheduling | 1/1 | Complete    | 2026-06-28 |
 | 4. Notifications | 1/1 | Complete    | 2026-06-28 |
 | 5. Config, Docs & Test | 2/2 | Complete    | 2026-06-28 |
+| 6. CSV Writer & Format | 0/? | Not started | - |
+| 7. GH Actions Bot Integration | 0/? | Not started | - |
+| 8. #job-board Channel Switchover | 0/? | Not started | - |
+| 9. CSV Channel Documentation | 0/? | Not started | - |
